@@ -7,7 +7,9 @@ mood_data = {
     "happy": {
         "quotes": [
             "Keep smiling, because life is a beautiful thing! 😊",
-            "Happiness is contagious, spread it! 🌞"
+            "Happiness is contagious, spread it! 🌞",
+            "Every moment is a fresh beginning. ✨",
+            "Be so happy that others look at you and feel happy too."
         ],
         "jokes": [
             "Why don’t scientists trust atoms? Because they make up everything! 🤣",
@@ -23,7 +25,9 @@ mood_data = {
     "sad": {
         "quotes": [
             "It’s okay to not be okay. 💙",
-            "Tough times never last, but tough people do 💪"
+            "Tough times never last, but tough people do 💪",
+            "Stars can’t shine without darkness. 🌌",
+            "You’ve survived 100% of your bad days. Keep going."
         ],
         "jokes": [
             "Why did the math book look sad? Because it had too many problems. 😢",
@@ -39,7 +43,9 @@ mood_data = {
     "angry": {
         "quotes": [
             "Calm is a superpower. 🧘",
-            "Breathe. It’s just a bad day, not a bad life. 🌪️"
+            "Breathe. It’s just a bad day, not a bad life. 🌪️",
+            "Your value doesn’t decrease based on someone’s inability to see your worth. 🛡️",
+            "Let your smile change the world, but don’t let the world change your smile."
         ],
         "jokes": [
             "I'm not arguing. I'm just explaining why I’m right! 😠",
@@ -55,7 +61,9 @@ mood_data = {
     "neutral": {
         "quotes": [
             "Stay grounded. Everything will fall into place. 🌱",
-            "Just breathe, you’ve got this. 🌈"
+            "Just breathe, you’ve got this. 🌈",
+            "Progress is progress, no matter how small. 🚶",
+            "In the middle of difficulty lies opportunity."
         ],
         "jokes": [
             "Why can’t your nose be 12 inches long? Because then it would be a foot! 👃🤣",
@@ -73,7 +81,9 @@ mood_data = {
 questions = [
     "How are you feeling today in one word?",
     "What happened today that affected your mood?",
-    "What's something on your mind right now?"
+    "What's something on your mind right now?",
+    "How do you feel physically and mentally right now?",
+    "If you could change one thing about your day, what would it be?"
 ]
 
 # --------- Setup Session State --------- #
@@ -109,9 +119,9 @@ if q_index < len(questions):
 else:
     def detect_mood(responses):
         polarity = sum(TextBlob(r).sentiment.polarity for r in responses) / len(responses)
-        if polarity > 0.2:
+        if polarity > 0.3:
             return "happy"
-        elif polarity < -0.2:
+        elif polarity < -0.3:
             return "sad"
         elif -0.1 < polarity < 0.1:
             return "neutral"
@@ -125,15 +135,17 @@ else:
     st.image(info["gif"], caption=f"Detected mood: **{mood.upper()}** 🎯", use_column_width=True)
     st.success(f"🌟 Your mood is: **{mood.capitalize()}**")
 
-    st.subheader("💬 Inspirational Quote")
-    st.info(random.choice(info["quotes"]))
+    st.subheader("💬 Motivational Quotes")
+    for quote in random.sample(info["quotes"], 2):
+        st.info(quote)
 
     st.subheader("🎧 Spotify Playlist")
     for link in info["spotify"]:
         st.markdown(f"[🎵 Open Playlist]({link})")
 
-    st.subheader("📺 YouTube Video")
-    st.video(random.choice(info["youtube"]))
+    st.subheader("📺 YouTube Video Links")
+    for link in random.sample(info["youtube"], 2):
+        st.markdown(f"[📺 Watch on YouTube]({link})")
 
     st.subheader("😂 Here's a joke for you:")
     st.write(random.choice(info["jokes"]))
