@@ -1,3 +1,8 @@
+import streamlit as st
+from textblob import TextBlob
+import random
+
+# ------------------ Mood Data ------------------ #
 mood_data = {
     "happy": {
         "quotes": [
@@ -88,3 +93,88 @@ mood_data = {
         ]
     }
 }
+
+# ------------------ Questions ------------------ #
+questions = [
+    "How are you feeling today in one word?",
+    "What happened today that affected your mood?",
+    "What's something on your mind right now?",
+    "How do you feel physically and mentally right now?",
+    "If you could change one thing about your day, what would it be?"
+]
+
+# ------------------ Session State ------------------ #
+if "q_index" not in st.session_state:
+    st.session_state.q_index = 0
+if "responses" not in st.session_state:
+    st.session_state.responses = []
+if "user_input" not in st.session_state:
+    st.session_state.user_input = ""
+
+# ------------------ Functions ------------------ #
+def advance():
+    if st.session_state.user_input.strip():
+        st.session_state.responses.append(st.session_state.user_input.strip())
+        st.session_state.q_index += 1
+        st.session_state.user_input = ""
+
+def detect_mood(texts):
+    polarity = sum(TextBlob(t).sentiment.polarity for t in texts) / len(texts)
+    if polarity >= 0.2:
+        return "happy"
+    elif polarity <= -0.2:
+        return "sad"
+    elif -0.2 < polarity < 0.2:
+        return "neutral"
+    else:
+        return "angry"
+
+# ------------------ UI Config ------------------ #
+st.set_page_config(page_title="AI Mood Detector 😄", layout="centered")
+st.markdown("<h1 style='text-align: center;'>🧠 Conversational Mood Detector</h1>", unsafe_allow_html=True)
+st.markdown("Answer a few questions below to let us detect your mood and suggest things for you.")
+
+# ------------------ Q&A or Result ------------------ #
+q_index = st.session_state.q_index
+
+if q_index < len(questions):
+    st.subheader(f"Q{q_index + 1}: {questions[q_index]}")
+    st.text_input(
+        label="",
+        key="user_input",
+        on_change=advance,
+        placeholder="Type your response and press Enter..."
+    )
+else:
+    try:
+        mood = detect_mood(st.session_state.responses)
+        data = mood_data[mood]
+
+        st.balloons()
+        st.success(f"🎯 Your mood is: **{mood.capitalize()}**")
+        st.image(random.choice(data["gifs"]), use_container_width=True)
+
+        st.subheader("💬 Motivational Quotes")
+        for quote in random.sample(data["quotes"], 2):
+            st.info(quote)
+
+        st.subheader("🎧 Spotify Playlist")
+        for link in data["spotify"]:
+            st.markdown(f"[▶️ Open Playlist on Spotify]({link})")
+
+        st.subheader("📺 YouTube Videos for You")
+        for link in random.sample(data["youtube"], 2):
+            st.markdown(f"[🎬 Watch Video]({link})")
+
+        st.subheader("😂 Here's a joke:")
+        st.write(random.choice(data["jokes"]))
+
+        if st.button("🔁 Start Again"):
+            st.session_state.q_index = 0
+            st.session_state.responses = []
+            st.session_state.user_input = ""
+            st.experimental_rerun()
+
+    except Exception as e:
+        st.error(f"⚠️ An error occurred: {e}")
+
