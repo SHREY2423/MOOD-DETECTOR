@@ -41,7 +41,24 @@ if st.session_state.step <= len(questions):
             st.session_state.answers.append(answer)
             st.session_state.step += 1
 else:
-    mood, suggestions = analyze_mood(st.session_state.answers)
+   # Show mood + suggestions + media links
+mood, suggestions = analyze_mood(st.session_state.answers)
+st.success(f"### Your Mood: {mood}")
+st.markdown("#### 💡 Suggestions for you:")
+for item in suggestions:
+    st.markdown(f"- {item}")
+
+# Show YouTube & Spotify links
+if "Positive" in mood:
+    st.markdown("🎵 [Listen on Spotify](https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0)")
+    st.markdown("📺 [Watch on YouTube](https://youtu.be/ZXsQAXx_ao0)")
+elif "Negative" in mood:
+    st.markdown("🎵 [Relax on Spotify](https://open.spotify.com/playlist/37i9dQZF1DWUvHZA1zLcjW)")
+    st.markdown("📺 [Calm YouTube Video](https://youtu.be/2OEL4P1Rz04)")
+else:
+    st.markdown("🎵 [Chill Vibes on Spotify](https://open.spotify.com/playlist/37i9dQZF1DX4WYpdgoIcn6)")
+    st.markdown("📺 [Lo-fi YouTube Stream](https://youtu.be/5qap5aO4i9A)")
+, suggestions = analyze_mood(st.session_state.answers)
     st.success(f"### Your Mood: {mood}")
     st.markdown("#### 💡 Suggestions for you:")
     for item in suggestions:
