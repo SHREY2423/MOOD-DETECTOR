@@ -4,7 +4,7 @@ import random
 
 # Multi-question form
 questions = [
-    "How are you feeling today in one word?",
+    "How are you feeling today ( answer in 1 word )?",
     "What made you feel this way?",
     "Describe your current thoughts in a sentence.",
     "What's one thing you wish could be different right now?"
