@@ -1,63 +1,55 @@
 import streamlit as st
 from textblob import TextBlob
 import random
-import time
-import base64
 
-# ------------------- Mood Content Data ------------------- #
+# --------- Mood Data --------- #
 mood_data = {
     "happy": {
         "quotes": [
-            "Keep smiling, because life is a beautiful thing!",
-            "Happiness is contagious, spread it everywhere 😄"
+            "Keep smiling, because life is a beautiful thing! 😊",
+            "Happiness is contagious, spread it! 🌞"
         ],
         "jokes": [
             "Why don’t scientists trust atoms? Because they make up everything! 🤣",
-            "Why did the scarecrow win an award? Because he was outstanding in his field! 🌾"
+            "Why did the scarecrow win an award? Because he was outstanding in his field! 🏆"
         ],
         "youtube": [
-            "https://www.youtube.com/watch?v=ZbZSe6N_BXs",  # Happy - Pharrell Williams
-            "https://www.youtube.com/watch?v=y6Sxv-sUYtM"   # Uptown Funk
+            "https://www.youtube.com/watch?v=ZbZSe6N_BXs",
+            "https://www.youtube.com/watch?v=y6Sxv-sUYtM"
         ],
-        "spotify": [
-            "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"
-        ],
+        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"],
         "gif": "https://media.giphy.com/media/yoJC2A59OCZHs1LXvW/giphy.gif"
     },
     "sad": {
         "quotes": [
-            "It’s okay to not be okay 💙",
+            "It’s okay to not be okay. 💙",
             "Tough times never last, but tough people do 💪"
         ],
         "jokes": [
-            "Why did the computer visit the therapist? It had too many bytes of sadness. 😢",
-            "Why did the math book look sad? Because it had too many problems. 📘"
+            "Why did the math book look sad? Because it had too many problems. 😢",
+            "Why did the computer visit the therapist? Too many bytes of sadness. 🖥️"
         ],
         "youtube": [
-            "https://www.youtube.com/watch?v=RB-RcX5DS5A",  # Fix You - Coldplay
-            "https://www.youtube.com/watch?v=uelHwf8o7_U"   # Love the Way You Lie
+            "https://www.youtube.com/watch?v=RB-RcX5DS5A",
+            "https://www.youtube.com/watch?v=uelHwf8o7_U"
         ],
-        "spotify": [
-            "https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1"
-        ],
+        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1"],
         "gif": "https://media.giphy.com/media/3oz8xKaR836UJOYeOc/giphy.gif"
     },
     "angry": {
         "quotes": [
-            "Calm is a superpower. 😤🧘‍♂️",
-            "Breathe. It's just a bad day, not a bad life. 🌪️"
+            "Calm is a superpower. 🧘",
+            "Breathe. It’s just a bad day, not a bad life. 🌪️"
         ],
         "jokes": [
-            "I'm not arguing, I'm just explaining why I'm right! 😡",
-            "Why did the skeleton stay calm? Nothing gets under his skin. 🦴"
+            "I'm not arguing. I'm just explaining why I’m right! 😠",
+            "Why don’t skeletons fight each other? They don’t have the guts. 💀"
         ],
         "youtube": [
-            "https://www.youtube.com/watch?v=ZtLbnN00ZJI",  # Angry music
-            "https://www.youtube.com/watch?v=U9BwWKXjVaI"   # Pump up
+            "https://www.youtube.com/watch?v=ZtLbnN00ZJI",
+            "https://www.youtube.com/watch?v=U9BwWKXjVaI"
         ],
-        "spotify": [
-            "https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP"
-        ],
+        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP"],
         "gif": "https://media.giphy.com/media/IThjAlJnD9WNO/giphy.gif"
     },
     "neutral": {
@@ -66,21 +58,32 @@ mood_data = {
             "Just breathe, you’ve got this. 🌈"
         ],
         "jokes": [
-            "Why can’t your nose be 12 inches long? Because then it would be a foot! 🤓",
+            "Why can’t your nose be 12 inches long? Because then it would be a foot! 👃🤣",
             "What do you call cheese that isn't yours? Nacho cheese! 🧀"
         ],
         "youtube": [
-            "https://www.youtube.com/watch?v=5qap5aO4i9A",  # Lofi chill
-            "https://www.youtube.com/watch?v=hHW1oY26kxQ"   # Relax beats
+            "https://www.youtube.com/watch?v=5qap5aO4i9A",
+            "https://www.youtube.com/watch?v=hHW1oY26kxQ"
         ],
-        "spotify": [
-            "https://open.spotify.com/playlist/37i9dQZF1DX6VdMW310YC7"
-        ],
+        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DX6VdMW310YC7"],
         "gif": "https://media.giphy.com/media/xT1R9ZzU4dU6lV1p7G/giphy.gif"
     }
 }
 
-# ------------------- Mood Detection Logic ------------------- #
+questions = [
+    "How are you feeling today in one word?",
+    "What happened today that affected your mood?",
+    "What's something on your mind right now?"
+]
+
+# --------- Initialize Session State Safely --------- #
+if "q_index" not in st.session_state:
+    st.session_state.q_index = 0
+
+if "responses" not in st.session_state:
+    st.session_state.responses = []
+
+# --------- Mood Detection Function --------- #
 def detect_mood(responses):
     total_polarity = sum(TextBlob(r).sentiment.polarity for r in responses)
     avg = total_polarity / len(responses)
@@ -93,63 +96,43 @@ def detect_mood(responses):
     else:
         return "angry"
 
-# ------------------- Streamlit UI ------------------- #
+# --------- UI --------- #
 st.set_page_config(page_title="Mood Detector", layout="centered")
-st.markdown("""
-    <style>
-    .question-box input {
-        font-size: 18px !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 st.title("🎭 Conversational Mood Detector")
-st.markdown("Answer these questions and we'll understand your mood better!")
+st.markdown("Answer these quick questions and I’ll detect your mood 🔍")
 
-questions = [
-    "How are you feeling in one word?",
-    "What happened today that impacted your mood?",
-    "What’s something currently on your mind?"
-]
+q_index = st.session_state.q_index
 
-responses = []
-current_question = st.session_state.get("q_index", 0)
-
-if current_question < len(questions):
-    st.subheader(f"Question {current_question + 1}:")
-    answer = st.text_input(questions[current_question], key=f"q{current_question}")
-
-    if answer:
-        responses = st.session_state.get("responses", [])
-        responses.append(answer)
-        st.session_state.responses = responses
-        st.session_state.q_index = current_question + 1
-        st.experimental_rerun()
-
-elif "responses" in st.session_state:
-    final_mood = detect_mood(st.session_state.responses)
-    mood_info = mood_data[final_mood]
+if q_index < len(questions):
+    with st.form(key="mood_form"):
+        response = st.text_input(questions[q_index], key=f"q{q_index}")
+        submitted = st.form_submit_button("Next")
+        if submitted and response.strip():
+            st.session_state.responses.append(response)
+            st.session_state.q_index += 1
+            st.experimental_rerun()
+else:
+    mood = detect_mood(st.session_state.responses)
+    info = mood_data[mood]
 
     st.balloons()
-    st.image(mood_info["gif"], caption=f"Detected mood: {final_mood.capitalize()} 🎭")
+    st.image(info["gif"], caption=f"Detected mood: **{mood.upper()}** 🎯", use_column_width=True)
+    st.success(f"🌟 Your mood is: **{mood.capitalize()}**")
 
-    st.success(f"🌟 Your mood is: {final_mood.capitalize()}")
-
-    st.subheader("💡 Quote")
-    st.info(random.choice(mood_info["quotes"]))
+    st.subheader("💬 Inspirational Quote")
+    st.info(random.choice(info["quotes"]))
 
     st.subheader("🎧 Spotify Playlist")
-    for link in mood_info["spotify"]:
-        st.markdown(f"[Open Playlist 🎵]({link})")
+    for link in info["spotify"]:
+        st.markdown(f"[🎵 Open Playlist]({link})")
 
-    st.subheader("📺 YouTube Recommendation")
-    yt_link = random.choice(mood_info["youtube"])
-    st.video(yt_link)
+    st.subheader("📺 YouTube Video")
+    st.video(random.choice(info["youtube"]))
 
-    st.subheader("😂 Joke to lighten your mood")
-    st.write(random.choice(mood_info["jokes"]))
+    st.subheader("😂 Here's a joke for you:")
+    st.write(random.choice(info["jokes"]))
 
-    if st.button("🔄 Restart"):
+    if st.button("🔁 Try Again"):
         st.session_state.q_index = 0
         st.session_state.responses = []
         st.experimental_rerun()
