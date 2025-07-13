@@ -63,7 +63,7 @@ mood_data = {
     },
     "angry": {
         "quotes": [
-            "Calm is a superpower. 🧘",
+            "Calm is a superpower. 🪘",
             "Breathe. It’s just a bad day, not a bad life. 🌪️"
         ],
         "jokes": [
@@ -75,7 +75,8 @@ mood_data = {
         ],
         "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP"],
         "gifs": [
-            "https://media.giphy.com/media/IThjAlJnD9WNO/giphy.gif"
+            "https://media.giphy.com/media/IThjAlJnD9WNO/giphy.gif",
+            "https://media.giphy.com/media/3o6ZtpxSZbQRRnwCKQ/giphy.gif"
         ]
     },
     "neutral": {
@@ -92,13 +93,14 @@ mood_data = {
         ],
         "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DX6VdMW310YC7"],
         "gifs": [
-            "https://media.giphy.com/media/xT1R9ZzU4dU6lV1p7G/giphy.gif"
+            "https://media.giphy.com/media/xT1R9ZzU4dU6lV1p7G/giphy.gif",
+            "https://media.giphy.com/media/3orieVVSG3bR3zmkGs/giphy.gif"
         ]
     },
     "depressed": {
         "quotes": [
-            "You're not alone. This too shall pass. 🌧️",
-            "Every storm runs out of rain. 🌦️"
+            "You're not alone. This too shall pass. ☃️",
+            "Every storm runs out of rain. ☂️"
         ],
         "jokes": [
             "Why did the chicken go to therapy? To get to the other side of its emotions. 🐔",
@@ -110,102 +112,11 @@ mood_data = {
         ],
         "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DWVrtsSlLKzro"],
         "gifs": [
-            "https://media.giphy.com/media/l0HlJzQ9312VRFMBW/giphy.gif"
+            "https://media.giphy.com/media/l0HlJzQ9312VRFMBW/giphy.gif",
+            "https://media.giphy.com/media/l0MYRzcWP4Dze2XsY/giphy.gif"
         ]
     }
 }
 
-# ------------------ Questions ------------------ #
-questions = [
-    "How are you feeling today ?",
-    "What happened today that affected your mood?",
-    "What's something on your mind right now?",
-    "How do you feel physically and mentally right now?",
-    "If you could change one thing about your day, what would it be?"
-]
+# You can now continue with the main app code using this updated `mood_data` with rich GIF support!
 
-# ------------------ Session State ------------------ #
-if "q_index" not in st.session_state:
-    st.session_state.q_index = 0
-if "responses" not in st.session_state:
-    st.session_state.responses = []
-if "user_input" not in st.session_state:
-    st.session_state.user_input = ""
-
-# ------------------ Functions ------------------ #
-def advance():
-    if st.session_state.user_input.strip():
-        st.session_state.responses.append(st.session_state.user_input.strip())
-        st.session_state.q_index += 1
-        st.session_state.user_input = ""
-
-def detect_mood(texts):
-    combined_text = " ".join(texts).lower()
-    depression_keywords = [
-        "depressed", "hopeless", "suicidal", "empty", "worthless",
-        "pointless", "dark", "numb", "burned out", "i hate myself", "give up"
-    ]
-    if any(kw in combined_text for kw in depression_keywords):
-        return "depressed"
-
-    polarity = sum(TextBlob(t).sentiment.polarity for t in texts) / len(texts)
-
-    if polarity >= 0.5:
-        return "joyful"
-    elif 0.2 <= polarity < 0.5:
-        return "happy"
-    elif -0.2 < polarity < 0.2:
-        return "neutral"
-    elif -0.6 < polarity <= -0.2:
-        return "sad"
-    else:
-        return "depressed"
-
-# ------------------ UI Config ------------------ #
-st.set_page_config(page_title="AI Mood Detector 😄", layout="centered")
-st.markdown("<h1 style='text-align: center;'>🧠 Conversational Mood Detector</h1>", unsafe_allow_html=True)
-st.markdown("Answer a few questions below to let us detect your mood and suggest things for you.")
-
-# ------------------ Q&A or Result ------------------ #
-q_index = st.session_state.q_index
-
-if q_index < len(questions):
-    st.subheader(f"Q{q_index + 1}: {questions[q_index]}")
-    st.text_input(
-        label="",
-        key="user_input",
-        on_change=advance,
-        placeholder="Type your response and press Enter..."
-    )
-else:
-    try:
-        mood = detect_mood(st.session_state.responses)
-        data = mood_data[mood]
-
-        st.balloons()
-        st.success(f"🎯 Your mood is: **{mood.capitalize()}**")
-        st.image(random.choice(data["gifs"]), use_container_width=True)
-
-        st.subheader("💬 Motivational Quotes")
-        for quote in random.sample(data["quotes"], min(2, len(data["quotes"]))):
-            st.info(quote)
-
-        st.subheader("🎧 Spotify Playlist")
-        for link in data["spotify"]:
-            st.markdown(f"[▶️ Open Playlist on Spotify]({link})")
-
-        st.subheader("📺 YouTube Videos for You")
-        for link in random.sample(data["youtube"], min(2, len(data["youtube"]))):
-            st.markdown(f"[🎬 Watch Video]({link})")
-
-        st.subheader("😂 Here's a joke:")
-        st.write(random.choice(data["jokes"]))
-
-        if st.button("🔁 Start Again"):
-            st.session_state.q_index = 0
-            st.session_state.responses = []
-            st.session_state.user_input = ""
-            st.experimental_rerun()
-
-    except Exception as e:
-        st.error(f"⚠️ An error occurred: {e}")
