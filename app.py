@@ -76,42 +76,48 @@ questions = [
     "What's something on your mind right now?"
 ]
 
-# --------- Initialize Session State Safely --------- #
+# --------- Setup Session State --------- #
 if "q_index" not in st.session_state:
     st.session_state.q_index = 0
-
 if "responses" not in st.session_state:
     st.session_state.responses = []
+if "user_input" not in st.session_state:
+    st.session_state.user_input = ""
 
-# --------- Mood Detection Function --------- #
-def detect_mood(responses):
-    total_polarity = sum(TextBlob(r).sentiment.polarity for r in responses)
-    avg = total_polarity / len(responses)
-    if avg > 0.2:
-        return "happy"
-    elif avg < -0.2:
-        return "sad"
-    elif -0.1 < avg < 0.1:
-        return "neutral"
-    else:
-        return "angry"
+# --------- Function to Handle Advance --------- #
+def advance_question():
+    if st.session_state.user_input.strip():
+        st.session_state.responses.append(st.session_state.user_input.strip())
+        st.session_state.q_index += 1
+        st.session_state.user_input = ""
 
 # --------- UI --------- #
 st.set_page_config(page_title="Mood Detector", layout="centered")
 st.title("🎭 Conversational Mood Detector")
-st.markdown("Answer these quick questions and I’ll detect your mood 🔍")
+st.markdown("Answer the following questions one by one. Press **Enter** to go next.")
 
 q_index = st.session_state.q_index
 
 if q_index < len(questions):
-    with st.form(key="mood_form"):
-        response = st.text_input(questions[q_index], key=f"q{q_index}")
-        submitted = st.form_submit_button("Next")
-        if submitted and response.strip():
-            st.session_state.responses.append(response)
-            st.session_state.q_index += 1
-            st.experimental_rerun()
+    st.subheader(f"Question {q_index + 1}")
+    st.text_input(
+        questions[q_index],
+        key="user_input",
+        on_change=advance_question,
+        placeholder="Type your answer and press Enter..."
+    )
 else:
+    def detect_mood(responses):
+        polarity = sum(TextBlob(r).sentiment.polarity for r in responses) / len(responses)
+        if polarity > 0.2:
+            return "happy"
+        elif polarity < -0.2:
+            return "sad"
+        elif -0.1 < polarity < 0.1:
+            return "neutral"
+        else:
+            return "angry"
+
     mood = detect_mood(st.session_state.responses)
     info = mood_data[mood]
 
@@ -132,7 +138,9 @@ else:
     st.subheader("😂 Here's a joke for you:")
     st.write(random.choice(info["jokes"]))
 
-    if st.button("🔁 Try Again"):
+    if st.button("🔁 Start Over"):
         st.session_state.q_index = 0
         st.session_state.responses = []
+        st.session_state.user_input = ""
         st.experimental_rerun()
+
