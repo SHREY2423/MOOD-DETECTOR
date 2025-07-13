@@ -136,7 +136,7 @@ else:
     # ------------------ Final Result ------------------ #
     st.balloons()
     st.success(f"🎯 Your mood is: **{mood.capitalize()}**")
-    st.image(data["gif"], use_column_width=True)
+    st.image(data["gif"], use_container_width=True)
 
     st.subheader("💬 Motivational Quotes")
     for quote in random.sample(data["quotes"], 2):
