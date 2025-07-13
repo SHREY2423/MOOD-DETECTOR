@@ -1,4 +1,3 @@
-# Main Streamlit App
 import streamlit as st
 from textblob import TextBlob
 
@@ -19,11 +18,11 @@ def analyze_mood(text_list):
         total += sentiment
     avg_sentiment = total / len(text_list)
     if avg_sentiment > 0.2:
-        return "😊 Positive", ["Upbeat music", "Motivational quote", "Try journaling"]
+        return "😊 Positive", ["🎵 Upbeat music", "💪 Motivational quote", "📝 Try journaling"]
     elif avg_sentiment < -0.2:
-        return "😟 Negative", ["Relaxing playlist", "Talk to someone", "Watch something funny"]
+        return "😟 Negative", ["🎧 Relaxing playlist", "🗣️ Talk to someone", "😂 Watch something funny"]
     else:
-        return "😐 Neutral", ["Go for a walk", "Meditate", "Read something light"]
+        return "😐 Neutral", ["🚶 Go for a walk", "🧘 Meditate", "📖 Read something light"]
 
 # Question loop
 questions = [
@@ -35,15 +34,17 @@ questions = [
 ]
 
 if st.session_state.step <= len(questions):
-    answer = st.text_input(questions[st.session_state.step - 1], key=f"q{st.session_state.step}")
-    if answer:
-        st.session_state.answers.append(answer)
-        st.session_state.step += 1
-        st.experimental_rerun()
+    with st.form(key=f"form{st.session_state.step}"):
+        answer = st.text_input(questions[st.session_state.step - 1])
+        submitted = st.form_submit_button("Next")
+        if submitted and answer:
+            st.session_state.answers.append(answer)
+            st.session_state.step += 1
 else:
     mood, suggestions = analyze_mood(st.session_state.answers)
     st.success(f"### Your Mood: {mood}")
     st.markdown("#### 💡 Suggestions for you:")
     for item in suggestions:
         st.markdown(f"- {item}")
-    st.button("🔄 Restart", on_click=lambda: st.session_state.clear())
+    if st.button("🔄 Restart"):
+        st.session_state.clear()
