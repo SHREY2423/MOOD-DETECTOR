@@ -118,5 +118,5 @@ mood_data = {
     }
 }
 
-# You can now continue with the main app code using this updated `mood_data` with rich GIF support!
+
 
