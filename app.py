@@ -101,19 +101,19 @@ def advance():
         st.session_state.q_index += 1
         st.session_state.user_input = ""
 
-# ------------------ Mood Detection ------------------ #
+# ------------------ Mood Detection (Improved) ------------------ #
 def detect_mood(texts):
     polarity = sum(TextBlob(t).sentiment.polarity for t in texts) / len(texts)
-    if polarity > 0.3:
+    if polarity >= 0.2:
         return "happy"
-    elif polarity < -0.3:
+    elif polarity <= -0.2:
         return "sad"
-    elif -0.1 < polarity < 0.1:
+    elif -0.2 < polarity < 0.2:
         return "neutral"
     else:
         return "angry"
 
-# ------------------ Page UI ------------------ #
+# ------------------ UI Setup ------------------ #
 st.set_page_config(page_title="AI Mood Detector 😄", layout="centered")
 st.markdown("<h1 style='text-align: center;'>🧠 Conversational Mood Detector</h1>", unsafe_allow_html=True)
 st.markdown("Answer a few questions below to let us detect your mood and suggest things for you.")
@@ -134,6 +134,7 @@ else:
     data = mood_data[mood]
 
     # ------------------ Final Result ------------------ #
+    st.balloons()
     st.success(f"🎯 Your mood is: **{mood.capitalize()}**")
     st.image(data["gif"], use_column_width=True)
 
@@ -157,3 +158,4 @@ else:
         st.session_state.responses = []
         st.session_state.user_input = ""
         st.experimental_rerun()
+
