@@ -2,62 +2,112 @@ import streamlit as st
 from textblob import TextBlob
 import random
 
-# Mood-based data
-mood_quotes = {
-    "happy": [
-        "Keep smiling, because life is a beautiful thing!",
-        "Happiness is not out there, it's in you."
-    ],
-    "sad": [
-        "It's okay to not be okay. You're not alone.",
-        "Tough times never last, but tough people do."
-    ],
-    "angry": [
-        "Take a deep breath. Calm is a superpower.",
-        "Speak when you are angry and you’ll make the best speech you’ll ever regret."
-    ],
-    "neutral": [
-        "Every day may not be good, but there is something good in every day.",
-        "Stay grounded. Everything will fall into place."
-    ]
+# Multi-question form
+questions = [
+    "How are you feeling today in one word?",
+    "What made you feel this way?",
+    "Describe your current thoughts in a sentence.",
+    "What's one thing you wish could be different right now?"
+]
+
+# Mood data
+mood_data = {
+    "happy": {
+        "quotes": [
+            "Keep smiling, because life is a beautiful thing!",
+            "Happiness is not out there, it's in you."
+        ],
+        "jokes": [
+            "Why don’t scientists trust atoms? Because they make up everything!",
+            "Why did the scarecrow win an award? Because he was outstanding in his field!"
+        ],
+        "music": [
+            "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",  # Happy Hits!
+            "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0"   # Good Vibes
+        ]
+    },
+    "sad": {
+        "quotes": [
+            "It’s okay to not be okay.",
+            "Tough times never last, but tough people do."
+        ],
+        "jokes": [
+            "Why did the computer visit the therapist? It had too many bytes of sadness.",
+            "Why did the math book look sad? Because it had too many problems."
+        ],
+        "music": [
+            "https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1",  # Life Sucks
+            "https://open.spotify.com/playlist/37i9dQZF1DX7gIoKXt0gmx"   # Sad Vibes
+        ]
+    },
+    "angry": {
+        "quotes": [
+            "Calm is a superpower.",
+            "Speak when you’re angry, and you’ll make the best speech you’ll ever regret."
+        ],
+        "jokes": [
+            "Why don’t skeletons fight each other? They don’t have the guts.",
+            "I'm not arguing, I'm just explaining why I'm right!"
+        ],
+        "music": [
+            "https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP",  # Rock Hard
+            "https://open.spotify.com/playlist/37i9dQZF1DX1tyCD9QhIWF"   # Angry Rock
+        ]
+    },
+    "neutral": {
+        "quotes": [
+            "Every day may not be good, but there's good in every day.",
+            "Stay grounded. Everything will fall into place."
+        ],
+        "jokes": [
+            "What did one wall say to the other? I’ll meet you at the corner.",
+            "Why can’t your nose be 12 inches long? Because then it would be a foot!"
+        ],
+        "music": [
+            "https://open.spotify.com/playlist/37i9dQZF1DX6VdMW310YC7",  # Chill Vibes
+            "https://open.spotify.com/playlist/37i9dQZF1DWUvHZA1zLcjW"   # Lo-Fi Beats
+        ]
+    }
 }
 
-mood_music = {
-    "happy": ["Happy - Pharrell Williams", "Can't Stop the Feeling - Justin Timberlake"],
-    "sad": ["Someone Like You - Adele", "Fix You - Coldplay"],
-    "angry": ["Stronger - Kanye West", "Numb - Linkin Park"],
-    "neutral": ["Weightless - Marconi Union", "Clair de Lune - Debussy"]
-}
+# Combine polarity from multiple answers
+def detect_mood_from_responses(responses):
+    total_polarity = 0
+    for r in responses:
+        total_polarity += TextBlob(r).sentiment.polarity
+    avg_polarity = total_polarity / len(responses)
 
-# Mood detection logic
-def detect_mood(text):
-    polarity = TextBlob(text).sentiment.polarity
-    if polarity > 0.2:
+    if avg_polarity > 0.2:
         return "happy"
-    elif polarity < -0.2:
+    elif avg_polarity < -0.2:
         return "sad"
-    elif -0.2 <= polarity <= 0.2:
+    elif -0.2 <= avg_polarity <= 0.2:
         return "neutral"
     else:
         return "angry"
 
-# App layout
-st.set_page_config(page_title="AI Mood Detector", layout="centered")
+# Streamlit UI
+st.set_page_config(page_title="Conversational Mood Detector", layout="centered")
 st.title("🧠 Conversational Mood Detector")
-st.markdown("Hi there! Let's talk and understand how you're feeling today 😊")
+st.markdown("Let's understand how you're feeling today. Answer a few quick questions 👇")
 
-user_input = st.text_input("How are you feeling right now? (Say it in one sentence)", "")
+responses = []
+with st.form("mood_form"):
+    for q in questions:
+        responses.append(st.text_input(q, key=q))
+    submitted = st.form_submit_button("Analyze Mood")
 
-if user_input:
-    mood = detect_mood(user_input)
-    st.success(f"Detected Mood: **{mood.capitalize()}** 😄" if mood == "happy" else
-               f"Detected Mood: **{mood.capitalize()}** 😐" if mood == "neutral" else
-               f"Detected Mood: **{mood.capitalize()}** 😔")
+if submitted and all(responses):
+    mood = detect_mood_from_responses(responses)
+    st.success(f"Detected Mood: **{mood.capitalize()}**")
 
-    st.subheader("💡 Uplifting Quote")
-    st.info(random.choice(mood_quotes[mood]))
+    st.subheader("💬 Motivational Quote")
+    st.info(random.choice(mood_data[mood]["quotes"]))
 
-    st.subheader("🎵 Music Recommendation")
-    for track in mood_music[mood]:
-        st.write(f"- {track}")
+    st.subheader("🎧 Spotify Playlist Suggestions")
+    for link in mood_data[mood]["music"]:
+        st.markdown(f"[Listen here]({link})")
+
+    st.subheader("😂 Here's a joke for you")
+    st.write(random.choice(mood_data[mood]["jokes"]))
 
