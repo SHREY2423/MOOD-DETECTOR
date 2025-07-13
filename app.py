@@ -1,6 +1,9 @@
 import streamlit as st
 from textblob import TextBlob
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
 import random
+import numpy as np
 
 # --------- Mood Data --------- #
 mood_data = {
@@ -101,6 +104,26 @@ def advance_question():
         st.session_state.q_index += 1
         st.session_state.user_input = ""
 
+# --------- Train Mood Classifier --------- #
+train_texts = [
+    "I feel great and energetic today",
+    "What a lovely and beautiful day",
+    "I'm feeling really down and upset",
+    "I just want to cry and sleep",
+    "I'm so mad and frustrated",
+    "Everything is making me angry",
+    "Just another normal day",
+    "I feel okay, nothing special"
+]
+train_labels = ["happy", "happy", "sad", "sad", "angry", "angry", "neutral", "neutral"]
+
+vectorizer = TfidfVectorizer()
+X_train = vectorizer.fit_transform(train_texts)
+y_train = train_labels
+
+classifier = MultinomialNB()
+classifier.fit(X_train, y_train)
+
 # --------- UI --------- #
 st.set_page_config(page_title="Mood Detector", layout="centered")
 st.title("🎭 Conversational Mood Detector")
@@ -117,18 +140,9 @@ if q_index < len(questions):
         placeholder="Type your answer and press Enter..."
     )
 else:
-    def detect_mood(responses):
-        polarity = sum(TextBlob(r).sentiment.polarity for r in responses) / len(responses)
-        if polarity > 0.3:
-            return "happy"
-        elif polarity < -0.3:
-            return "sad"
-        elif -0.1 < polarity < 0.1:
-            return "neutral"
-        else:
-            return "angry"
-
-    mood = detect_mood(st.session_state.responses)
+    combined_input = " ".join(st.session_state.responses)
+    X_input = vectorizer.transform([combined_input])
+    mood = classifier.predict(X_input)[0]
     info = mood_data[mood]
 
     st.balloons()
@@ -155,4 +169,4 @@ else:
         st.session_state.responses = []
         st.session_state.user_input = ""
         st.experimental_rerun()
-
+        
