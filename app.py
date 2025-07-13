@@ -3,9 +3,8 @@ from textblob import TextBlob
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 import random
-import numpy as np
 
-# --------- Mood Data --------- #
+# ---------------------- Mood Data ---------------------- #
 mood_data = {
     "happy": {
         "quotes": [
@@ -89,7 +88,7 @@ questions = [
     "If you could change one thing about your day, what would it be?"
 ]
 
-# --------- Setup Session State --------- #
+# ---------------------- Session State Setup ---------------------- #
 if "q_index" not in st.session_state:
     st.session_state.q_index = 0
 if "responses" not in st.session_state:
@@ -97,52 +96,51 @@ if "responses" not in st.session_state:
 if "user_input" not in st.session_state:
     st.session_state.user_input = ""
 
-# --------- Function to Handle Advance --------- #
+# ---------------------- ML Model Training ---------------------- #
+train_texts = [
+    "I feel great and energetic today", "What a lovely and beautiful day", "I'm feeling amazing",
+    "I just got promoted and I'm so happy", "I'm feeling really down and upset", "I just want to cry and sleep",
+    "Life feels meaningless right now", "I'm so mad and frustrated", "Everything is making me angry",
+    "People are irritating me a lot today", "Just another normal day", "I feel okay, nothing special"
+]
+train_labels = [
+    "happy", "happy", "happy", "happy",
+    "sad", "sad", "sad",
+    "angry", "angry", "angry",
+    "neutral", "neutral"
+]
+
+vectorizer = TfidfVectorizer()
+X_train = vectorizer.fit_transform(train_texts)
+clf = MultinomialNB()
+clf.fit(X_train, train_labels)
+
+# ---------------------- Advance Input ---------------------- #
 def advance_question():
     if st.session_state.user_input.strip():
         st.session_state.responses.append(st.session_state.user_input.strip())
         st.session_state.q_index += 1
         st.session_state.user_input = ""
 
-# --------- Train Mood Classifier --------- #
-train_texts = [
-    "I feel great and energetic today",
-    "What a lovely and beautiful day",
-    "I'm feeling really down and upset",
-    "I just want to cry and sleep",
-    "I'm so mad and frustrated",
-    "Everything is making me angry",
-    "Just another normal day",
-    "I feel okay, nothing special"
-]
-train_labels = ["happy", "happy", "sad", "sad", "angry", "angry", "neutral", "neutral"]
-
-vectorizer = TfidfVectorizer()
-X_train = vectorizer.fit_transform(train_texts)
-y_train = train_labels
-
-classifier = MultinomialNB()
-classifier.fit(X_train, y_train)
-
-# --------- UI --------- #
+# ---------------------- UI ---------------------- #
 st.set_page_config(page_title="Mood Detector", layout="centered")
-st.title("🎭 Conversational Mood Detector")
-st.markdown("Answer the following questions one by one. Press **Enter** to go next.")
+st.title("🧠 AI Mood Detector")
+st.markdown("Answer the following questions honestly. Press **Enter** to go next.")
 
 q_index = st.session_state.q_index
 
 if q_index < len(questions):
-    st.subheader(f"Question {q_index + 1}")
+    st.subheader(f"Q{q_index + 1}:")
     st.text_input(
         questions[q_index],
         key="user_input",
         on_change=advance_question,
-        placeholder="Type your answer and press Enter..."
+        placeholder="Type here and press Enter..."
     )
 else:
     combined_input = " ".join(st.session_state.responses)
     X_input = vectorizer.transform([combined_input])
-    mood = classifier.predict(X_input)[0]
+    mood = clf.predict(X_input)[0]
     info = mood_data[mood]
 
     st.balloons()
@@ -159,7 +157,7 @@ else:
 
     st.subheader("📺 YouTube Video Links")
     for link in random.sample(info["youtube"], 2):
-        st.markdown(f"[📺 Watch on YouTube]({link})")
+        st.markdown(f"[📺 Watch Video]({link})")
 
     st.subheader("😂 Here's a joke for you:")
     st.write(random.choice(info["jokes"]))
@@ -169,4 +167,4 @@ else:
         st.session_state.responses = []
         st.session_state.user_input = ""
         st.experimental_rerun()
-        
+
