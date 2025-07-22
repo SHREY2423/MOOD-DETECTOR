@@ -1,212 +1,131 @@
 import streamlit as st
+from transformers import pipeline
+from deepface import DeepFace
 from textblob import TextBlob
 import random
+import webbrowser
+import base64
 
-# ------------------ Mood Data ------------------ #
+# ------------------ Setup ------------------
+
+# Load HuggingFace GoEmotions model
+emotion_classifier = pipeline("text-classification", model="bhadresh-savani/bert-base-go-emotion", return_all_scores=True)
+
+# Jokes and quotes database
 mood_data = {
-    "joyful": {
-        "quotes": [
-            "Joy is the simplest form of gratitude 🌈",
-            "Live life to the fullest and make every moment count! 🎉"
-        ],
-        "jokes": [
-            "Why do bees have sticky hair? Because they use honeycombs! 🐝",
-            "What do you call a singing computer? A Dell! 🎤"
-        ],
-        "youtube": [
-            "https://www.youtube.com/watch?v=3GwjfUFyY6M",
-            "https://www.youtube.com/watch?v=ZbZSe6N_BXs"
-        ],
-        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"],
-        "gifs": [
-            "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif",
-            "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif"
-        ]
+    "joy": {
+        "joke": "Why don’t scientists trust atoms? Because they make up everything!",
+        "quote": "Happiness is not by chance, but by choice.",
+        "gif": "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif",
+        "spotify": "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",
+        "youtube": "https://www.youtube.com/watch?v=d-diB65scQU"
     },
-    "happy": {
-        "quotes": [
-            "Keep smiling, because life is a beautiful thing! 😊",
-            "Happiness is contagious, spread it! 🌞"
-        ],
-        "jokes": [
-            "Why don’t scientists trust atoms? Because they make up everything! 🤣",
-            "Why did the scarecrow win an award? Because he was outstanding in his field! 🏆"
-        ],
-        "youtube": [
-            "https://www.youtube.com/watch?v=60ItHLz5WEA",
-            "https://www.youtube.com/watch?v=3GwjfUFyY6M"
-        ],
-        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"],
-        "gifs": [
-            "https://media.giphy.com/media/yoJC2A59OCZHs1LXvW/giphy.gif",
-            "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif"
-        ]
+    "sadness": {
+        "joke": "Why did the teddy bear say no to dessert? Because he was already stuffed.",
+        "quote": "Tears come from the heart and not from the brain.",
+        "gif": "https://media.giphy.com/media/d2lcHJTG5Tscg/giphy.gif",
+        "spotify": "https://open.spotify.com/playlist/37i9dQZF1DWVV27DiNWxkR",
+        "youtube": "https://www.youtube.com/watch?v=hoNb6HuNmU0"
     },
-    "sad": {
-        "quotes": [
-            "It’s okay to not be okay. 💙",
-            "Tough times never last, but tough people do 💪"
-        ],
-        "jokes": [
-            "Why did the math book look sad? Because it had too many problems. 😢",
-            "Why did the computer visit the therapist? Too many bytes of sadness. 🖥️"
-        ],
-        "youtube": [
-            "https://www.youtube.com/watch?v=RB-RcX5DS5A",
-            "https://www.youtube.com/watch?v=2vjPBrBU-TM"
-        ],
-        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1"],
-        "gifs": [
-            "https://media.giphy.com/media/3oz8xKaR836UJOYeOc/giphy.gif",
-            "https://media.giphy.com/media/d2lcHJTG5Tscg/giphy.gif"
-        ]
-    },
-    "angry": {
-        "quotes": [
-            "Calm is a superpower. 🧘",
-            "Breathe. It’s just a bad day, not a bad life. 🌪️"
-        ],
-        "jokes": [
-            "Why don’t skeletons fight each other? They don’t have the guts. 💀",
-            "I'm not arguing, I'm just passionately expressing my rightness 😤"
-        ],
-        "youtube": [
-            "https://www.youtube.com/watch?v=kXYiU_JCYtU"
-        ],
-        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP"],
-        "gifs": [
-            "https://media.giphy.com/media/IThjAlJnD9WNO/giphy.gif"
-        ]
+    "anger": {
+        "joke": "Why did the volcano get promoted? Because it was on fire!",
+        "quote": "For every minute you remain angry, you give up sixty seconds of peace of mind.",
+        "gif": "https://media.giphy.com/media/l3V0j3ytFyGHqiV7W/giphy.gif",
+        "spotify": "https://open.spotify.com/playlist/37i9dQZF1DX59NCqCqJtoH",
+        "youtube": "https://www.youtube.com/watch?v=QwZT7T-TXT0"
     },
     "neutral": {
-        "quotes": [
-            "Stay grounded. Everything will fall into place. 🌱",
-            "Just breathe, you’ve got this. 🌈"
-        ],
-        "jokes": [
-            "Why can’t your nose be 12 inches long? Because then it would be a foot! 👃🤣",
-            "What do you call cheese that isn't yours? Nacho cheese! 🧀"
-        ],
-        "youtube": [
-            "https://www.youtube.com/watch?v=hHW1oY26kxQ"
-        ],
-        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DX6VdMW310YC7"],
-        "gifs": [
-            "https://media.giphy.com/media/xT1R9ZzU4dU6lV1p7G/giphy.gif"
-        ]
+        "joke": "I used to play piano by ear, but now I use my hands.",
+        "quote": "Life is 10% what happens to us and 90% how we react to it.",
+        "gif": "https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif",
+        "spotify": "https://open.spotify.com/playlist/37i9dQZF1DWUzFXarNiofw",
+        "youtube": "https://www.youtube.com/watch?v=VYOjWnS4cMY"
     },
-    "depressed": {
-        "quotes": [
-            "You're not alone. This too shall pass. 🌧️",
-            "Every storm runs out of rain. 🌦️"
-        ],
-        "jokes": [
-            "Why did the chicken go to therapy? To get to the other side of its emotions. 🐔",
-            "What’s a depressed person’s favorite food? Anything with serotonin! 😅"
-        ],
-        "youtube": [
-            "https://www.youtube.com/watch?v=w6T02g5hnT4",
-            "https://www.youtube.com/watch?v=2vEStDd6HVY"
-        ],
-        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DWVrtsSlLKzro"],
-        "gifs": [
-            "https://media.giphy.com/media/l0HlJzQ9312VRFMBW/giphy.gif"
-        ]
+    "fear": {
+        "joke": "Why don’t ghosts like rain? It dampens their spirits.",
+        "quote": "Do the thing you fear and the death of fear is certain.",
+        "gif": "https://media.giphy.com/media/l1J3preURPiwjRPvG/giphy.gif",
+        "spotify": "https://open.spotify.com/playlist/37i9dQZF1DWZqd5JICZI0u",
+        "youtube": "https://www.youtube.com/watch?v=wT5Ms3n5RBU"
     }
 }
 
-# ------------------ Questions ------------------ #
+# ------------------ Helper Functions ------------------
+
+def get_goemotions_sentiment(text):
+    result = emotion_classifier(text)[0]
+    top_emotion = max(result, key=lambda x: x['score'])['label']
+    return top_emotion
+
+def get_textblob_sentiment(text):
+    blob = TextBlob(text)
+    polarity = blob.sentiment.polarity
+    if polarity > 0.2:
+        return "joy"
+    elif polarity < -0.2:
+        return "sadness"
+    else:
+        return "neutral"
+
+def predict_facial_emotion():
+    try:
+        analysis = DeepFace.analyze(img_path=0, actions=['emotion'], enforce_detection=False)
+        dominant_emotion = analysis[0]['dominant_emotion']
+        return dominant_emotion
+    except Exception as e:
+        return "neutral"
+
+def map_emotion(label):
+    label = label.lower()
+    if "happy" in label or "joy" in label:
+        return "joy"
+    elif "sad" in label or "depress" in label:
+        return "sadness"
+    elif "angry" in label or "anger" in label:
+        return "anger"
+    elif "fear" in label or "scared" in label:
+        return "fear"
+    else:
+        return "neutral"
+
+# ------------------ Streamlit App ------------------
+
+st.set_page_config(page_title="🧠 Conversational Mood Detector", layout="centered")
+
+st.title("🧠 Conversational Mood Detector")
+st.write("Let's talk and understand how you're feeling today 😊")
+
+user_responses = []
 questions = [
-    "How are you feeling today in one word?",
-    "What happened today that affected your mood?",
-    "What's something on your mind right now?",
-    "How do you feel physically and mentally right now?",
-    "If you could change one thing about your day, what would it be?"
+    "1️⃣ How are you feeling right now in one word?",
+    "2️⃣ What’s something that happened today?",
+    "3️⃣ What’s on your mind lately?",
+    "4️⃣ How was your sleep last night?",
+    "5️⃣ What are you looking forward to?"
 ]
 
-# ------------------ Session State ------------------ #
-if "q_index" not in st.session_state:
-    st.session_state.q_index = 0
-if "responses" not in st.session_state:
-    st.session_state.responses = []
-if "user_input" not in st.session_state:
-    st.session_state.user_input = ""
+for question in questions:
+    answer = st.text_input(question, key=question)
+    if answer:
+        user_responses.append(answer)
 
-# ------------------ Functions ------------------ #
-def advance():
-    if st.session_state.user_input.strip():
-        st.session_state.responses.append(st.session_state.user_input.strip())
-        st.session_state.q_index += 1
-        st.session_state.user_input = ""
+if st.button("🎯 Detect Mood"):
+    all_text = " ".join(user_responses)
+    go_emotion = map_emotion(get_goemotions_sentiment(all_text))
+    blob_emotion = get_textblob_sentiment(all_text)
+    face_emotion_raw = predict_facial_emotion()
+    face_emotion = map_emotion(face_emotion_raw)
 
-def detect_mood(texts):
-    combined_text = " ".join(texts).lower()
-    depression_keywords = [
-        "depressed", "hopeless", "suicidal", "empty", "worthless",
-        "pointless", "dark", "numb", "burned out", "i hate myself", "give up"
-    ]
-    if any(kw in combined_text for kw in depression_keywords):
-        return "depressed"
-
-    polarity = sum(TextBlob(t).sentiment.polarity for t in texts) / len(texts)
-
-    if polarity >= 0.5:
-        return "joyful"
-    elif 0.2 <= polarity < 0.5:
-        return "happy"
-    elif -0.2 < polarity < 0.2:
-        return "neutral"
-    elif -0.6 < polarity <= -0.2:
-        return "sad"
-    else:
-        return "depressed"
-
-# ------------------ UI Config ------------------ #
-st.set_page_config(page_title="AI Mood Detector 😄", layout="centered")
-st.markdown("<h1 style='text-align: center;'>🧠 Conversational Mood Detector</h1>", unsafe_allow_html=True)
-st.markdown("Answer a few questions below to let us detect your mood and suggest things for you.")
-
-# ------------------ Q&A or Result ------------------ #
-q_index = st.session_state.q_index
-
-if q_index < len(questions):
-    st.subheader(f"Q{q_index + 1}: {questions[q_index]}")
-    st.text_input(
-        label="",
-        key="user_input",
-        on_change=advance,
-        placeholder="Type your response and press Enter..."
+    final_mood = max(
+        [go_emotion, blob_emotion, face_emotion],
+        key=[go_emotion, blob_emotion, face_emotion].count
     )
-else:
-    try:
-        mood = detect_mood(st.session_state.responses)
-        data = mood_data[mood]
 
-        st.balloons()
-        st.success(f"🎯 Your mood is: **{mood.capitalize()}**")
-        st.image(random.choice(data["gifs"]), use_container_width=True)
-
-        st.subheader("💬 Motivational Quotes")
-        for quote in random.sample(data["quotes"], min(2, len(data["quotes"]))):
-            st.info(quote)
-
-        st.subheader("🎧 Spotify Playlist")
-        for link in data["spotify"]:
-            st.markdown(f"[▶️ Open Playlist on Spotify]({link})")
-
-        st.subheader("📺 YouTube Videos for You")
-        for link in random.sample(data["youtube"], min(2, len(data["youtube"]))):
-            st.markdown(f"[🎬 Watch Video]({link})")
-
-        st.subheader("😂 Here's a joke:")
-        st.write(random.choice(data["jokes"]))
-
-        if st.button("🔁 Start Again"):
-            st.session_state.q_index = 0
-            st.session_state.responses = []
-            st.session_state.user_input = ""
-            st.experimental_rerun()
-
-    except Exception as e:
-        st.error(f"⚠️ An error occurred: {e}")
-
+    data = mood_data.get(final_mood, mood_data["neutral"])
+    
+    st.subheader(f"🧠 Detected Mood: `{final_mood.upper()}`")
+    st.image(data["gif"], caption="Here's how your mood looks 😄")
+    st.write(f"**🎵 Music Suggestion:** [Spotify Playlist]({data['spotify']})")
+    st.write(f"**📺 YouTube Video:** [Watch Video]({data['youtube']})")
+    st.write(f"**💬 Quote:** _{data['quote']}_")
+    st.write(f"**🤣 Joke:** {data['joke']}")
