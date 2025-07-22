@@ -1,170 +1,192 @@
 import streamlit as st
+from textblob import TextBlob
 from transformers import pipeline
 import random
+import time
 
-# Sentiment analysis pipeline
-sentiment_pipeline = pipeline("sentiment-analysis")
+# Sentiment pipeline
+classifier = pipeline("sentiment-analysis")
 
-# Mood-specific keywords
-depression_keywords = ["depressed", "suicide", "worthless", "hopeless", "self-harm", "kill myself", "ending it"]
-
-# Question bank
-questions = [
-    "How are you feeling right now (one word)?",
-    "What made you feel that way today?",
-    "Did something recently happen that affected your mood?",
-    "How is your energy level right now?",
-    "Would you rather talk to someone or be alone?",
-    "What’s one word to describe your week?",
-]
-
-# Mood-based quotes
+# Mood-specific data
 motivational_quotes = {
-    "joyful": [
-        "Happiness is not by chance, but by choice.",
-        "Smile, breathe, and go slowly.",
-        "Do more things that make you forget to check your phone.",
-        "Joy is the simplest form of gratitude.",
-        "Today is a good day to have a good day!",
-        "The most wasted of all days is one without laughter.",
-        "Be happy for this moment. This moment is your life.",
-        "Every day brings new choices.",
-        "Let your smile change the world.",
-        "Choose happiness over everything.",
-    ] * 3,  # Multiplied to ensure rotation
+    "happy": [
+        "Happiness is not something ready made. It comes from your own actions. – Dalai Lama",
+        "The purpose of our lives is to be happy. – Dalai Lama",
+        "Happiness depends upon ourselves. – Aristotle",
+        "Smile, and let the world wonder why.",
+        "Choose happiness daily and you’ll find joy in every moment.",
+        "Enjoy the little things in life.",
+        "Happiness is the highest level of success.",
+        "Good vibes only.",
+        "Be the reason someone smiles today.",
+        "Joy is a decision, not a condition.",
+        "Happiness is contagious, spread it.",
+        "Focus on what makes you feel alive.",
+        "Happiness is homemade.",
+        "You deserve happiness.",
+        "Think happy. Be happy.",
+        "Celebrate every tiny victory.",
+        "Gratitude unlocks joy.",
+        "Life is beautiful, notice it.",
+        "You glow differently when you're happy.",
+        "Stay close to what feels like sunshine.",
+        "Live life in full bloom.",
+        "Create your own sunshine.",
+        "You attract what you radiate.",
+        "Your vibe attracts your tribe.",
+        "Smiles are free but priceless.",
+        "Positive mind, positive life.",
+        "Be happy—it drives people crazy!",
+        "Laughter is timeless, imagination has no age.",
+        "Collect moments, not things.",
+        "Shine bright, always."
+    ],
     "sad": [
         "This too shall pass.",
-        "You are stronger than you think.",
-        "Storms don’t last forever.",
-        "Crying doesn’t indicate weakness.",
+        "Every storm runs out of rain. — Maya Angelou",
+        "Sadness flies away on the wings of time. — Jean de La Fontaine",
+        "Healing takes time, and that's okay.",
+        "It’s okay not to be okay.",
+        "The sun will rise and we will try again.",
+        "Tears are words the heart can't say.",
+        "Sometimes you have to know sadness to appreciate happiness.",
+        "Be gentle with yourself. You're doing the best you can.",
         "Even the darkest night will end and the sun will rise.",
-        "You’ve survived 100% of your bad days so far.",
-        "Pain is temporary. Keep going.",
-        "You grow through what you go through.",
-        "You’re allowed to scream, just never give up.",
-        "Feel it. Heal it. Let it go.",
-    ] * 3,
-    "neutral": [
-        "Balance is the key to everything.",
-        "Some days are just days. And that’s okay.",
-        "Stillness is not weakness.",
-        "Every day may not be good, but there is good in every day.",
-        "Progress is progress no matter how small.",
-        "You are doing better than you think.",
-        "Small steps every day.",
-        "It's okay to pause. Just don’t stop.",
-        "Life isn’t perfect, but it has perfect moments.",
-        "The middle path is often the most powerful.",
-    ] * 3,
-    "depressed": [
-        "You are not alone. Please talk to someone you trust.",
-        "You matter. Always.",
-        "It’s okay to ask for help.",
-        "Don’t give up. The beginning is always the hardest.",
+        "You’re stronger than you think.",
+        "Crying isn’t a weakness.",
+        "It's okay to rest.",
+        "Healing begins with acceptance.",
+        "Let it hurt, then let it go.",
+        "You are not alone.",
+        "Take your time, one day at a time.",
+        "Everything you feel is valid.",
+        "It’s brave to ask for help.",
+        "Hope is real.",
+        "It’s okay to feel lost.",
+        "Your feelings matter.",
+        "Storms don’t last forever.",
+        "Be proud of how far you’ve come.",
+        "Small steps still move you forward.",
+        "You're allowed to feel everything.",
+        "Time heals. Be patient.",
         "Even broken crayons still color.",
-        "Your story isn’t over yet.",
-        "Breathe. You’ve got this.",
-        "Reach out. There is help.",
-        "Darkness doesn’t define you. Hope does.",
-        "Please be kind to yourself today.",
-    ] * 3,
+        "Pain is temporary.",
+        "Stay. You’re not alone."
+    ],
+    "depressed": [
+        "You are not alone. Talk to someone you trust.",
+        "The darkest hour has only sixty minutes.",
+        "You’ve made it through 100% of your worst days. Keep going.",
+        "Your presence matters. You matter.",
+        "Reach out — someone cares.",
+        "One small step is still progress.",
+        "It’s okay to ask for help. That’s strength, not weakness.",
+        "Don’t give up now, your future self is waiting.",
+        "You are needed. You are loved.",
+        "Even the strongest feel weak sometimes. Rest, then rise.",
+        "You can start over each day.",
+        "Mental pain is real. Healing is too.",
+        "You are stronger than your thoughts.",
+        "Never be ashamed of your story.",
+        "Depression lies — don’t listen.",
+        "There’s hope, even when your brain tells you there isn’t.",
+        "Don’t suffer in silence. Talk to a friend or professional.",
+        "Suicidal thoughts do not define you.",
+        "Stay. There’s more life for you to live.",
+        "Healing is not linear, but you’re healing."
+    ]
 }
 
-# Spotify playlists
 spotify_links = {
-    "joyful": [
+    "happy": [
         "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",
-        "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0",
-        "https://open.spotify.com/playlist/37i9dQZF1DX9XIFQuFvzM4",
+        "https://open.spotify.com/playlist/37i9dQZF1DWYBO1MoTDhZI",
+        "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0"
     ],
     "sad": [
         "https://open.spotify.com/playlist/37i9dQZF1DWVrtsSlLKzro",
-        "https://open.spotify.com/playlist/37i9dQZF1DWX83CujKHHOn",
         "https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1",
-    ],
-    "neutral": [
-        "https://open.spotify.com/playlist/37i9dQZF1DWT7XSlwvR1ar",
-        "https://open.spotify.com/playlist/37i9dQZF1DX4E3UdUs7fUx",
-        "https://open.spotify.com/playlist/37i9dQZF1DWXLeA8Omikj7",
+        "https://open.spotify.com/playlist/37i9dQZF1DX3YSRoSdA634"
     ],
     "depressed": [
-        "https://open.spotify.com/playlist/37i9dQZF1DX7QOv5kjbU68",
-        "https://open.spotify.com/playlist/37i9dQZF1DX3YSRoSdA634",
-        "https://open.spotify.com/playlist/37i9dQZF1DWU0ScTcjJBdj",
-    ],
+        "https://open.spotify.com/playlist/37i9dQZF1DX7gIoKXt0gmx",
+        "https://open.spotify.com/playlist/37i9dQZF1DX3YSRoSdA634"
+    ]
 }
 
-# YouTube links
 youtube_links = {
-    "joyful": [
-        "https://www.youtube.com/watch?v=ZbZSe6N_BXs",
-        "https://www.youtube.com/watch?v=kJQP7kiw5Fk",
+    "happy": [
+        "https://youtu.be/ZbZSe6N_BXs",  # Happy - Pharrell Williams
+        "https://youtu.be/y6Sxv-sUYtM"
     ],
     "sad": [
-        "https://www.youtube.com/watch?v=ho9rZjlsyYY",
-        "https://www.youtube.com/watch?v=RB-RcX5DS5A",
-    ],
-    "neutral": [
-        "https://www.youtube.com/watch?v=5qap5aO4i9A",
-        "https://www.youtube.com/watch?v=DWcJFNfaw9c",
+        "https://youtu.be/7qEHsqek33s",  # Lewis Capaldi - Someone You Loved
+        "https://youtu.be/Jk1nw4Uoxig"
     ],
     "depressed": [
-        "https://www.youtube.com/watch?v=wnHW6o8WMas",
-        "https://www.youtube.com/watch?v=1vx8iUvfyCY",
-    ],
+        "https://youtu.be/2vjPBrBU-TM",  # Sia - Chandelier
+        "https://youtu.be/M6sSOhLftK4"
+    ]
 }
 
-# Initialize session state
-if "step" not in st.session_state:
-    st.session_state.step = 0
-if "responses" not in st.session_state:
-    st.session_state.responses = []
+# Suicide/depression keywords
+depression_keywords = ["depressed", "suicide", "kill myself", "no one cares", "worthless", "hopeless"]
 
-# Title
+# Streamlit UI
+st.set_page_config(page_title="Conversational Mood Detector", layout="centered")
 st.title("🧠 Conversational Mood Detector")
-st.markdown("Let’s have a quick conversation to understand how you're feeling today. 😊")
+st.write("Hi! Let's understand how you're feeling today. Please answer the following questions.")
 
-# Handle Q&A
-if st.session_state.step < len(questions):
-    question = questions[st.session_state.step]
-    user_input = st.text_input(f"**Q{st.session_state.step + 1}: {question}**", key=f"q{st.session_state.step}")
-    if user_input:
-        st.session_state.responses.append(user_input)
-        st.session_state.step += 1
-        st.experimental_rerun()
-else:
-    # Join all responses into one text
-    full_text = " ".join(st.session_state.responses).lower()
+questions = [
+    "1️⃣ How are you feeling right now (in one word)?",
+    "2️⃣ What kind of day did you have?",
+    "3️⃣ Describe your mood using a short sentence.",
+    "4️⃣ Are you feeling motivated or tired?",
+    "5️⃣ Do you feel like talking to someone?"
+]
 
-    # Detect depressed keywords first
+responses = []
+
+for q in questions:
+    response = st.text_input(q, key=q)
+    if response:
+        responses.append(response)
+        time.sleep(0.5)
+
+if len(responses) == len(questions):
+    full_text = " ".join(responses).lower()
+
+    # Check for depression keywords
     if any(word in full_text for word in depression_keywords):
         mood = "depressed"
     else:
-        result = sentiment_pipeline(full_text)[0]
-        label = result["label"]
-        if label == "POSITIVE":
-            mood = "joyful"
-        elif label == "NEGATIVE":
+        sentiment = classifier(full_text)[0]
+        polarity = TextBlob(full_text).sentiment.polarity
+
+        if sentiment['label'] == "POSITIVE" and polarity > 0.2:
+            mood = "happy"
+        elif sentiment['label'] == "NEGATIVE" and polarity < -0.2:
             mood = "sad"
         else:
             mood = "neutral"
 
-    # Show mood
-    st.subheader(f"🌀 Detected Mood: `{mood.upper()}`")
+    st.subheader(f"🧠 Predicted Mood: **{mood.upper()}**")
 
-    # Show quote
-    quote = random.choice(motivational_quotes[mood])
-    st.info(f"💬 **Motivational Quote:** _{quote}_")
+    # Show motivational quote
+    if mood in motivational_quotes:
+        st.info(f"💡 {random.choice(motivational_quotes[mood])}")
 
-    # Spotify
-    st.markdown("🎵 **Listen on Spotify:**")
-    for link in spotify_links[mood][:3]:
-        st.markdown(f"- [Open Playlist]({link})")
+    # Show Spotify links
+    if mood in spotify_links:
+        st.markdown("🎧 **Spotify Playlist:**")
+        for link in spotify_links[mood]:
+            st.markdown(f"- [Open Playlist]({link})")
 
-    # YouTube
-    st.markdown("📺 **Watch on YouTube:**")
-    for link in youtube_links[mood][:2]:
-        st.markdown(f"- [Open Video]({link})")
-
-    st.success("Thank you for sharing! 💖")
+    # Show YouTube videos
+    if mood in youtube_links:
+        st.markdown("📺 **YouTube Videos:**")
+        for link in youtube_links[mood]:
+            st.markdown(f"- [Watch Video]({link})")
+else:
+    st.warning("👉 Please answer all the questions above.")
 
