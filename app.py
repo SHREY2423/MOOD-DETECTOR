@@ -1,134 +1,125 @@
 import streamlit as st
 from textblob import TextBlob
 import random
+import base64
+from PIL import Image
+import os
 
-# ------------------ Setup Page Config ------------------
-st.set_page_config(page_title="Conversational Mood Detector",
-                   page_icon="🧠",
-                   layout="centered")
-
-# ------------------ Calm Theme Background ------------------
+st.set_page_config(page_title="Conversational Mood Detector", layout="wide")
 st.markdown("""
     <style>
-    body {
-        background-color: #f0f7f4;
-        font-family: 'Segoe UI', sans-serif;
-    }
-    .stTextInput>div>div>input {
-        background-color: #e8f5e9;
-        color: #000000;
-    }
-    .stButton>button {
-        background-color: #aed581;
-        color: black;
-        font-weight: bold;
-        border-radius: 12px;
-        padding: 0.5em 1em;
-    }
+        body {
+            background-color: #f4f9ff;
+        }
+        .question-box {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .gif-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .stButton>button {
+            background-color: #8ecae6;
+            color: white;
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
     </style>
 """, unsafe_allow_html=True)
 
-# ------------------ Data ------------------
+# --- Data: Questions, Quotes, Jokes, GIFs ---
 questions = [
     "How are you feeling right now in one word?",
-    "What kind of day did you have today?",
-    "What’s something on your mind?",
-    "How much energy do you have right now (scale of 1-10)?",
-    "Did anything recently make you smile or feel good?",
-    "What kind of music do you feel like listening to right now?"
+    "What's been on your mind lately?",
+    "Did anything today make you smile or feel sad?",
+    "Do you feel supported or alone these days?",
+    "How do you handle stress when it hits you?"
 ]
 
-mood_gifs = {
-    "happy": ["https://media.giphy.com/media/l0HlvtIPzPdt2usKs/giphy.gif"],
-    "sad": ["https://media.giphy.com/media/d2lcHJTG5Tscg/giphy.gif"],
-    "depressed": ["https://media.giphy.com/media/l1J3preURPiwjRPvG/giphy.gif"],
-    "neutral": ["https://media.giphy.com/media/3o6ZtaO9BZHcOjmErm/giphy.gif"],
-    "joyful": ["https://media.giphy.com/media/3o7btXJQm5DD8/giphy.gif"]
+motivational_quotes = {
+    "happy": ["Happiness is contagious. Pass it on!", "Keep shining! Your joy lights up others."],
+    "sad": ["Tough times don’t last, tough people do.", "Your current situation is not your final destination."],
+    "depressed": ["You matter. You’re not alone.", "Even the darkest night will end and the sun will rise."],
+    "neutral": ["Every day is a second chance.", "Stay grounded and keep growing."]
 }
 
-mood_quotes = {
-    "happy": [
-        "Happiness is not by chance, but by choice.",
-        "Keep smiling, because life is a beautiful thing."
-    ],
-    "sad": [
-        "Tough times never last, but tough people do.",
-        "Every day may not be good, but there's something good in every day."
-    ],
-    "depressed": [
-        "You are stronger than you think. Keep going.",
-        "It's okay to not be okay. Just don't give up."
-    ],
-    "neutral": [
-        "Take a deep breath. Keep moving forward.",
-        "You’re doing better than you think you are."
-    ],
-    "joyful": [
-        "Let your joy burst forth like flowers in the spring.",
-        "Joy is the simplest form of gratitude."
-    ]
+jokes = {
+    "happy": ["Why don’t scientists trust atoms? Because they make up everything!"],
+    "sad": ["Why did the scarecrow win an award? Because he was outstanding in his field!"],
+    "depressed": ["I'm on a seafood diet. I see food and I eat it."],
+    "neutral": ["Why can’t your nose be 12 inches long? Because then it would be a foot!"]
 }
 
-def analyze_mood():
-    all_text = " ".join([st.session_state.get(f"input_{i}", "") for i in range(len(questions))])
+gif_paths = {
+    "happy": "gifs/happy.gif",
+    "sad": "gifs/sad.gif",
+    "depressed": "gifs/depressed.gif",
+    "neutral": "gifs/neutral.gif"
+}
+
+music_recommendations = {
+    "happy": ["https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"],
+    "sad": ["https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1"],
+    "depressed": ["https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0"],
+    "neutral": ["https://open.spotify.com/playlist/37i9dQZF1DX4WYpdgoIcn6"]
+}
+
+# --- Session Setup ---
+if "step" not in st.session_state:
+    st.session_state.step = 0
+if "answers" not in st.session_state:
+    st.session_state.answers = []
+
+st.title("🧠 Conversational Mood Detector")
+st.subheader("Let's talk and discover how you're truly feeling 😊")
+
+# --- Main Conversation Loop ---
+if st.session_state.step < len(questions):
+    st.markdown(f"**Q{st.session_state.step + 1}: {questions[st.session_state.step]}**")
+    user_input = st.text_input("Your response:", key=f"input_{st.session_state.step}")
+    if user_input:
+        st.session_state.answers.append(user_input)
+        st.session_state.step += 1
+        st.experimental_rerun()
+else:
+    all_text = " ".join(st.session_state.answers).lower()
     blob = TextBlob(all_text)
     polarity = blob.sentiment.polarity
 
-    if any(word in all_text.lower() for word in ["suicide", "kill myself", "worthless"]):
-        return "depressed"
+    if any(word in all_text for word in ["suicide", "worthless", "kill myself"]):
+        mood = "depressed"
+    elif polarity > 0.3:
+        mood = "happy"
     elif polarity < -0.3:
-        return "depressed"
-    elif polarity < -0.05:
-        return "sad"
-    elif polarity < 0.2:
-        return "neutral"
-    elif polarity < 0.6:
-        return "happy"
+        mood = "sad"
+    elif polarity < -0.6:
+        mood = "depressed"
     else:
-        return "joyful"
+        mood = "neutral"
 
-def display_results(mood):
-    st.subheader(f"Your detected mood is: {mood.upper()} ✨")
+    st.success(f"We think you're feeling **{mood.upper()}**")
 
-    # Show gif
-    st.image(random.choice(mood_gifs[mood]), use_column_width=True)
+    # --- Display GIF ---
+    st.image(gif_paths[mood], width=300)
 
-    # Show quote
-    st.success(random.choice(mood_quotes[mood]))
+    # --- Show Recommendations ---
+    st.markdown("---")
+    st.subheader("🎧 Here's something for you:")
+    st.markdown(f"- **Motivational Quote**: *{random.choice(motivational_quotes[mood])}*")
+    st.markdown(f"- **A Little Joke**: _{random.choice(jokes[mood])}_")
+    st.markdown(f"- **Spotify Vibes**: [Listen here]({music_recommendations[mood][0]})")
 
-    # Show media links
-    if mood in ["depressed", "sad"]:
-        st.markdown("[🎵 Comforting Music Playlist](https://open.spotify.com/playlist/37i9dQZF1DWVrtsSlLKzro)")
-        st.markdown("[📽 Uplifting YouTube Video](https://www.youtube.com/watch?v=ZJZpFT8bAP8)")
-    elif mood == "happy" or mood == "joyful":
-        st.markdown("[🎶 Happy Vibes Spotify](https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC)")
-        st.markdown("[🎥 Celebrate Your Mood](https://www.youtube.com/watch?v=d-diB65scQU)")
-    else:
-        st.markdown("[🌉 Chill Playlist](https://open.spotify.com/playlist/37i9dQZF1DX4WYpdgoIcn6)")
+    st.markdown("---")
+    st.markdown("Feel free to restart for another round.")
+    if st.button("🔄 Restart"):
+        st.session_state.step = 0
+        st.session_state.answers = []
+        st.experimental_rerun()
 
-# ------------------ Question Flow ------------------
-if 'step' not in st.session_state:
-    st.session_state.step = 0
-
-def next_question():
-    if st.session_state.step < len(questions):
-        st.session_state.step += 1
-
-# ------------------ UI Start ------------------
-st.title("\U0001F9E0 Conversational Mood Detector")
-st.markdown("""
-    <div style='text-align: center;'>
-        <h4>Let's talk and discover how you're truly feeling 😊</h4>
-    </div>
-""", unsafe_allow_html=True)
-
-if st.session_state.step < len(questions):
-    st.markdown(f"**{questions[st.session_state.step]}**")
-    st.text_input("Your response:",
-                  key=f"input_{st.session_state.step}",
-                  on_change=next_question,
-                  label_visibility="collapsed")
-else:
-    mood_result = analyze_mood()
-    display_results(mood_result)
-
+# --- Optional Stickers (decorative) ---
+st.image("gifs/sticker-corner.png", width=100, use_column_width=False)
