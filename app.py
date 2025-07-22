@@ -1,223 +1,177 @@
 import streamlit as st
-from transformers import pipeline
 from textblob import TextBlob
 import random
 import time
 
-# Initialize model and state
-sentiment_pipeline = pipeline("sentiment-analysis")
-
-if "answers" not in st.session_state:
-    st.session_state.answers = []
-if "question_index" not in st.session_state:
-    st.session_state.question_index = 0
-if "mood" not in st.session_state:
-    st.session_state.mood = ""
-if "show_result" not in st.session_state:
-    st.session_state.show_result = False
-
-# Questions
+# Define questions to ask
 questions = [
-    "1️⃣ How are you feeling today in one word?",
-    "2️⃣ What kind of day did you have?",
-    "3️⃣ Have you been social or isolated lately?",
-    "4️⃣ What's something on your mind right now?",
-    "5️⃣ What motivates or drains you currently?",
-    "6️⃣ Any recent moment that made you emotional?"
+    "How are you feeling right now in one word?",
+    "What was the highlight of your day?",
+    "Is there anything troubling you today?",
+    "Do you feel like talking to someone?",
+    "What kind of music do you enjoy lately?",
+    "Are you looking forward to something this week?",
 ]
+
+# Extended motivational quotes
+motivational_quotes = [
+    "Keep going, you're doing great!",
+    "This too shall pass.",
+    "You are stronger than you think.",
+    "Every day is a second chance.",
+    "Difficult roads often lead to beautiful destinations.",
+    "Believe in yourself and all that you are.",
+    "Your potential is endless.",
+    "The comeback is always stronger than the setback.",
+    "Don’t give up. Great things take time.",
+    "You’re not alone, and you matter.",
+    "Choose to be optimistic, it feels better.",
+    "Small steps every day lead to big results.",
+    "Storms make trees take deeper roots.",
+    "The best view comes after the hardest climb.",
+    "Pain is temporary. Growth is permanent.",
+    "You’ve survived 100% of your worst days.",
+    "Rise above the storm and you will find sunshine.",
+    "The only way out is through.",
+    "Take it day by day, step by step.",
+    "Be gentle with yourself, you're doing the best you can.",
+    "You’re allowed to rest, not quit.",
+    "You are not your thoughts. You are the observer.",
+    "Life is tough but so are you.",
+    "Progress, not perfection.",
+    "It’s okay to not be okay.",
+    "You have the power to create change.",
+    "You are worthy of love and support.",
+    "Don't count the days, make the days count.",
+    "Fall seven times, stand up eight.",
+    "Your story isn't over yet.",
+]
+
+# Jokes by mood
+jokes = {
+    "happy": [
+        "Why don’t scientists trust atoms? Because they make up everything!",
+        "Why did the scarecrow win an award? Because he was outstanding in his field!",
+        "I told my computer I needed a break, and it said 'no problem, I'll go to sleep too.'",
+        "How does the ocean say hi? It waves!",
+    ],
+    "sad": [
+        "Why don’t skeletons fight each other? They don’t have the guts.",
+        "Why did the math book look sad? Because it had too many problems.",
+        "Feeling blue? Here's a smile 🙂",
+        "Life may be cloudy now, but the sun always returns. 🌞",
+    ],
+    "neutral": [
+        "Why did the tomato turn red? Because it saw the salad dressing!",
+        "Parallel lines have so much in common… it’s a shame they’ll never meet.",
+    ],
+    "depressed": [
+        "You matter. Don’t let your brain convince you otherwise.",
+        "Even on your worst days, you are loved and needed.",
+    ]
+}
 
 # Mood detection keywords
 mood_keywords = {
-    "depressed": ["suicide", "kill myself", "die", "ending", "worthless", "over", "useless", "hopeless"],
-    "sad": ["sad", "tired", "down", "cry", "lonely", "upset", "hurt"],
-    "happy": ["happy", "excited", "grateful", "smile", "joy"],
-    "neutral": ["okay", "fine", "normal", "meh", "nothing"],
-    "joyful": ["amazing", "great", "awesome", "fantastic", "blessed"]
+    "depressed": ["depressed", "suicide", "end it", "worthless", "kill myself", "over it", "give up", "nothing left"],
+    "sad": ["sad", "unhappy", "cry", "bad mood", "lonely", "broken"],
+    "happy": ["happy", "joyful", "excited", "great", "fantastic", "awesome"],
+    "neutral": ["okay", "fine", "alright", "meh"]
 }
 
-# Quotes
-quotes = {
-    "depressed": [
-        "You have survived 100% of your bad days. Keep going.",
-        "This too shall pass. Hold on.",
-        "You matter more than you think.",
-        "Every day is a second chance.",
-        "Let the darkest days teach you the brightest lessons.",
-        "Even broken crayons still color.",
-        "You are not alone. Talk to someone.",
-        "Pain is temporary. Strength is forever.",
-        "Your story isn’t over yet.",
-        "Bravery is asking for help when you need it."
+# Gifs by mood
+gif_urls = {
+    "happy": [
+        "https://media.giphy.com/media/yoJC2A59OCZHs1LXvW/giphy.gif",
+        "https://media.giphy.com/media/l4FGuhL4U2WyjdkaY/giphy.gif",
     ],
     "sad": [
-        "Tough times don’t last, but tough people do.",
-        "You are stronger than you think.",
-        "Healing takes time, and that’s okay.",
-        "Let yourself feel, and then let go.",
-        "Your current situation is not your final destination.",
-        "Sadness is a visitor — not a permanent resident.",
-        "It's okay to cry. It’s okay to feel.",
-        "You’ve made it through every bad day so far.",
-        "One step at a time is still progress.",
-        "You will smile again."
-    ],
-    "happy": [
-        "Happiness looks good on you!",
-        "Spread your joy like confetti!",
-        "Your smile is contagious!",
-        "Today is a good day to be happy!",
-        "Let your happiness inspire others.",
-        "Keep shining!",
-        "Live in the moment!",
-        "Gratitude fuels happiness.",
-        "Celebrate the little victories!",
-        "Enjoy the now!"
-    ],
-    "joyful": [
-        "Your vibe is inspiring!",
-        "You’re glowing with positivity!",
-        "The world needs more of your joy!",
-        "Keep laughing, it suits you!",
-        "You bring sunshine with you!",
-        "This joy is a blessing.",
-        "Joy is powerful. Keep it alive!",
-        "Ride the wave of this energy!",
-        "You’re on fire (in a good way)!",
-        "Joy is the ultimate success."
+        "https://media.giphy.com/media/d2lcHJTG5Tscg/giphy.gif",
+        "https://media.giphy.com/media/ROF8OQvDmxytW/giphy.gif",
     ],
     "neutral": [
-        "Neutral is a safe place to restart.",
-        "Sometimes pause is power.",
-        "You’re doing okay, and that’s enough.",
-        "Balance is a blessing.",
-        "Clarity begins in stillness.",
-        "Even a flat line is better than burnout.",
-        "Breathe. Reflect. Realign.",
-        "Today may be neutral, but tomorrow may shine.",
-        "Peace is in this moment.",
-        "Let today just be."
+        "https://media.giphy.com/media/3o6ZsX2dNwltku5PZm/giphy.gif",
+    ],
+    "depressed": [
+        "https://media.giphy.com/media/3orieX3dQmr7j3lwTC/giphy.gif",
+        "https://media.giphy.com/media/3o6Zt8zb1P4b8QJJgk/giphy.gif",
     ]
 }
 
-# Mood-specific jokes
-jokes = {
-    "sad": [
-        "Why don’t skeletons fight each other? They don’t have the guts!",
-        "What do you call fake spaghetti? An impasta!",
-        "Why did the scarecrow win an award? Because he was outstanding in his field!"
-    ],
-    "depressed": [
-        "Why did the computer go to therapy? It had too many bytes of sadness!",
-        "Why did the blanket go to rehab? It was hooked on comfort!",
-        "How do cows stay positive? They turn the moooood around!"
-    ],
+# Spotify & YouTube suggestions by mood
+media_links = {
     "happy": [
-        "What do you call cheese that isn't yours? Nacho cheese!",
-        "Why did the coffee file a police report? It got mugged!"
+        "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",
+        "https://www.youtube.com/watch?v=ZbZSe6N_BXs",
+    ],
+    "sad": [
+        "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0",
+        "https://www.youtube.com/watch?v=hoNb6HuNmU0",
     ],
     "neutral": [
-        "Why don't eggs tell jokes? They’d crack each other up!",
-        "Why did the math book look sad? Too many problems."
+        "https://open.spotify.com/playlist/37i9dQZF1DX4WYpdgoIcn6",
+        "https://www.youtube.com/watch?v=RgKAFK5djSk",
     ],
-    "joyful": [
-        "Did you hear about the claustrophobic astronaut? He just needed a little space!",
-        "Why did the banana go to the party? Because it was a-peeling!"
+    "depressed": [
+        "https://open.spotify.com/playlist/37i9dQZF1DWZqd5JICZI0u",
+        "https://www.youtube.com/watch?v=hLQl3WQQoQ0",
     ]
 }
 
-# Mood-specific Spotify and YouTube links
-recommendations = {
-    "depressed": {
-        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0"],
-        "youtube": ["https://www.youtube.com/watch?v=8ybW48rKBME"]
-    },
-    "sad": {
-        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DWVrtsSlLKzro"],
-        "youtube": ["https://www.youtube.com/watch?v=VYOjWnS4cMY"]
-    },
-    "happy": {
-        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"],
-        "youtube": ["https://www.youtube.com/watch?v=ZbZSe6N_BXs"]
-    },
-    "neutral": {
-        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DWSqmBTGDYngZ"],
-        "youtube": ["https://www.youtube.com/watch?v=QDYfEBY9NM4"]
-    },
-    "joyful": {
-        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"],
-        "youtube": ["https://www.youtube.com/watch?v=OPf0YbXqDm0"]
-    }
-}
-
-# GIFs
-gifs = {
-    "depressed": ["https://media.giphy.com/media/xT9IgG50Fb7Mi0prBC/giphy.gif"],
-    "sad": ["https://media.giphy.com/media/l0MYRzcWP5V6N4BxG/giphy.gif"],
-    "happy": ["https://media.giphy.com/media/1BcfiGlOGXzQk/giphy.gif"],
-    "neutral": ["https://media.giphy.com/media/3orieRzZ9h3S9VHzYA/giphy.gif"],
-    "joyful": ["https://media.giphy.com/media/111ebonMs90YLu/giphy.gif"]
-}
-
-# Detect mood function
-def detect_mood(text):
-    text = text.lower()
-    for mood, keywords in mood_keywords.items():
-        if any(word in text for word in keywords):
-            return mood
-    analysis = TextBlob(text)
-    polarity = analysis.sentiment.polarity
-    if polarity < -0.5:
-        return "depressed"
-    elif polarity < 0:
-        return "sad"
-    elif polarity == 0:
-        return "neutral"
-    elif polarity < 0.5:
-        return "happy"
-    else:
-        return "joyful"
-
-# UI Layout
+st.set_page_config(page_title="Conversational Mood Detector", layout="centered")
 st.title("🧠 Conversational Mood Detector")
-st.write("Let's chat and understand your mood today 😊")
+st.markdown("Let's talk and understand how you're feeling today 😊")
 
-if st.session_state.question_index < len(questions):
-    current_question = questions[st.session_state.question_index]
-    user_input = st.text_input(current_question, key=st.session_state.question_index)
+if 'answers' not in st.session_state:
+    st.session_state.answers = []
+if 'current_question' not in st.session_state:
+    st.session_state.current_question = 0
+if 'mood' not in st.session_state:
+    st.session_state.mood = ""
+
+if st.session_state.current_question < len(questions):
+    answer = st.text_input(questions[st.session_state.current_question], key=str(st.session_state.current_question))
+    if answer:
+        st.session_state.answers.append(answer)
+        st.session_state.current_question += 1
+        st.experimental_rerun()
+else:
+    combined_text = " ".join(st.session_state.answers).lower()
+    detected_mood = "neutral"
+
+    for mood, keywords in mood_keywords.items():
+        if any(word in combined_text for word in keywords):
+            detected_mood = mood
+            break
+
+    blob = TextBlob(combined_text)
+    polarity = blob.sentiment.polarity
+    if polarity > 0.2:
+        detected_mood = "happy"
+    elif polarity < -0.3:
+        if detected_mood != "depressed":
+            detected_mood = "sad"
+
+    st.session_state.mood = detected_mood
+
+    st.subheader(f"Your Mood: {detected_mood.capitalize()} 💬")
+    st.image(random.choice(gif_urls.get(detected_mood, [])), use_column_width=True)
+
+    st.markdown(f"**Quote for You** ✨\n> {random.choice(motivational_quotes)}")
 
     st.markdown("---")
-    st.markdown("🧠 AI Powered • 🌈 Mood Scanner • 💬 Smart Chat")
+    st.markdown(f"**Here's something to cheer you up!** 🎵🎬")
+    for link in media_links.get(detected_mood, []):
+        st.markdown(f"🔗 [Open Link]({link})")
 
-    if user_input:
-        st.session_state.answers.append(user_input)
-        st.session_state.question_index += 1
+    st.markdown("---")
+    st.markdown(f"**Here’s a joke to lighten your mood** 😄\n- {random.choice(jokes.get(detected_mood, []))}")
+
+    if st.button("🔁 Restart"):
+        st.session_state.answers = []
+        st.session_state.current_question = 0
+        st.session_state.mood = ""
         st.experimental_rerun()
 
-elif not st.session_state.show_result:
-    full_text = " ".join(st.session_state.answers)
-    detected_mood = detect_mood(full_text)
-    st.session_state.mood = detected_mood
-    st.session_state.show_result = True
-    st.experimental_rerun()
-
-else:
-    mood = st.session_state.mood
-    st.subheader(f"🎯 Detected Mood: **{mood.upper()}**")
-    st.image(random.choice(gifs.get(mood, [])), width=300)
-    st.success(random.choice(quotes.get(mood, [])))
-    st.info(f"💡 Joke: {random.choice(jokes.get(mood, []))}")
-
-    for link in recommendations[mood]["spotify"]:
-        st.markdown(f"🎧 [Listen on Spotify]({link})")
-    for yt in recommendations[mood]["youtube"]:
-        st.markdown(f"📺 [Watch on YouTube]({yt})")
-
-    st.balloons()
-    if st.button("🔁 Try Again"):
-        for key in ["answers", "question_index", "mood", "show_result"]:
-            st.session_state.pop(key, None)
-        st.experimental_rerun()
-
-# Footer Decoration
-st.markdown("---")
-st.markdown("Made with ❤️ by AI • Powered by 🤖 Transformers • UI Enhanced ✨")
+# Footer decoration or extra creative UI element
+st.markdown("<div style='margin-top: 30px; text-align: center;'>🤖 Made with ❤️ by AI — Your Mood Companion</div>", unsafe_allow_html=True)
