@@ -97,8 +97,8 @@ mood_data = {
     },
     "depressed": {
         "quotes": [
-            "You're not alone. This too shall pass. 🌧",
-            "Every storm runs out of rain. 🌦"
+            "You're not alone. This too shall pass. ☃",
+            "Every storm runs out of rain. ☆"
         ],
         "jokes": [
             "Why did the chicken go to therapy? To get to the other side of its emotions. 🐔",
@@ -143,7 +143,8 @@ def detect_mood(texts):
     combined_text = " ".join(texts).lower()
     depression_keywords = [
         "depressed", "hopeless", "suicidal", "empty", "worthless",
-        "pointless", "dark", "numb", "burned out", "i hate myself", "give up"
+        "pointless", "dark", "numb", "burned out", "i hate myself", "give up",
+        "quitting", "killing", "ending", "suicide", "lonely", "invisible"
     ]
     if any(kw in combined_text for kw in depression_keywords):
         return "depressed"
@@ -163,12 +164,18 @@ def detect_mood(texts):
 
 # ------------------ UI Config ------------------ #
 st.set_page_config(page_title="AI Mood Detector 😄", layout="centered")
+st.markdown("""
+    <style>
+    .stApp { background-color: #fdf6f0; }
+    .footer {text-align: center; font-size: 0.9em; color: gray; margin-top: 4em;}
+    </style>
+""", unsafe_allow_html=True)
+
 st.markdown("<h1 style='text-align: center;'>🧠 Conversational Mood Detector</h1>", unsafe_allow_html=True)
 st.markdown("Answer a few questions below to let us detect your mood and suggest things for you.")
 
 # ------------------ Q&A or Result ------------------ #
 q_index = st.session_state.q_index
-
 if q_index < len(questions):
     st.subheader(f"Q{q_index + 1}: {questions[q_index]}")
     st.text_input(
@@ -190,16 +197,24 @@ else:
         for quote in random.sample(data["quotes"], min(2, len(data["quotes"]))):
             st.info(quote)
 
-        st.subheader("🎧 Spotify Playlist")
+        st.subheader("🎷 Spotify Playlist")
         for link in data["spotify"]:
             st.markdown(f"[▶ Open Playlist on Spotify]({link})")
 
-        st.subheader("📺 YouTube Videos for You")
+        st.subheader("🎮 YouTube Videos for You")
         for link in random.sample(data["youtube"], min(2, len(data["youtube"]))):
             st.markdown(f"[🎬 Watch Video]({link})")
 
-        st.subheader("😂 Here's a joke:")
+        st.subheader("🤣 Here's a joke:")
         st.write(random.choice(data["jokes"]))
+
+        st.markdown("""
+        <div class='footer'>
+            <hr>
+            <p>Created with ❤️ by <strong>SHREY</strong></p>
+            <img src='https://media.giphy.com/media/MaJS9tq7LzOkg/giphy.gif' width='100'/>
+        </div>
+        """, unsafe_allow_html=True)
 
         if st.button("🔁 Start Again"):
             st.session_state.q_index = 0
