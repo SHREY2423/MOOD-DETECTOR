@@ -1,170 +1,140 @@
-# app.py
-
 import streamlit as st
 from textblob import TextBlob
 import random
+import time
 
-# ------------------ Extended Mood Data ------------------ #
-mood_data = {
-    "joyful": {
-        "quotes": [
-            "Joy is the simplest form of gratitude 🌈",
-            "Live life to the fullest and make every moment count! 🎉",
-            "Smile more, worry less 😊",
-            "Each day is a new beginning 🌞",
-            "Gratitude turns what we have into enough 🙏",
-            "Choose happiness over fear 🌸",
-            "Today is a good day for a good day 💫",
-            "Laughter is an instant vacation 😂",
-            "The purpose of our lives is to be happy 😄",
-            "Celebrate small victories 🥳",
-            "Positive mind. Positive vibes. Positive life ✨",
-            "Shine like the whole universe is yours ✨",
-            "Life is short, smile while you still have teeth 😁",
-            "Let your joy burst forth like flowers in spring 🌷",
-            "Stay close to people who feel like sunlight ☀️",
-            "Do more of what makes you happy 🎈",
-            "Happiness blooms from within 🌼",
-            "Joy multiplies when shared 💕",
-            "You're someone's reason to smile 😊",
-            "Your vibe attracts your tribe ✨",
-            "Look for something positive in each day 🌟",
-            "You deserve all the good things 🌠",
-            "The sun is shining and so are you 🌞",
-            "Nothing can dim the light within you 💡",
-            "Live simply. Dream big. Be grateful 🌈",
-            "Good energy is contagious 🔋",
-            "Let joy be your compass 🧭",
-            "Wake up. Be kind. Repeat 💖",
-            "The best is yet to come 🎉",
-            "Smile, it's free therapy 😃"
-        ],
-        "jokes": [
-            "Why do bees have sticky hair? Because they use honeycombs! 🐝",
-            "What do you call a singing computer? A Dell! 🎤"
-        ],
-        "youtube": [
-            "https://www.youtube.com/watch?v=3GwjfUFyY6M",
-            "https://www.youtube.com/watch?v=ZbZSe6N_BXs",
-            "https://www.youtube.com/watch?v=9NjKgV65fpo",
-            "https://www.youtube.com/watch?v=d-diB65scQU"
-        ],
-        "spotify": [
-            "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",
-            "https://open.spotify.com/playlist/37i9dQZF1DWU0ScTcjJBdj"
-        ],
-        "gifs": [
-            "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif",
-            "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif"
-        ]
-    },
-    "depressed": {
-        "quotes": [
-            "You're not alone. This too shall pass. 🌧",
-            "Every storm runs out of rain. 🌦",
-            "You are stronger than you think 💪",
-            "Feelings are just visitors. Let them come and go 🧠",
-            "Your story isn't over yet 💜",
-            "Breathe in peace, breathe out anxiety 🌬️",
-            "One step at a time 🐾",
-            "Asking for help is a strength, not weakness 🤝",
-            "You matter. Always have, always will 🌟",
-            "There is hope, even when your brain tells you there isn’t 💫"
-        ],
-        "jokes": [
-            "Why did the chicken go to therapy? To get to the other side of its emotions 🐔",
-            "What's a depressed person's favorite food? Anything with serotonin 😅"
-        ],
-        "youtube": [
-            "https://www.youtube.com/watch?v=w6T02g5hnT4",
-            "https://www.youtube.com/watch?v=2vEStDd6HVY",
-            "https://www.youtube.com/watch?v=ZToicYcHIOU"
-        ],
-        "spotify": [
-            "https://open.spotify.com/playlist/37i9dQZF1DWVrtsSlLKzro",
-            "https://open.spotify.com/playlist/37i9dQZF1DWXLeA8Omikj7"
-        ],
-        "gifs": [
-            "https://media.giphy.com/media/l0HlJzQ9312VRFMBW/giphy.gif"
-        ]
-    },
-    # Add similar expansions for happy, sad, angry, and neutral...
+# ----------------------------- Data Setup -----------------------------
+mood_keywords = {
+    "happy": ["happy", "joy", "excited", "awesome", "great"],
+    "sad": ["sad", "cry", "tears", "pain", "lonely"],
+    "depressed": ["depressed", "suicide", "kill", "worthless", "quit", "over"],
+    "neutral": ["ok", "fine", "normal", "nothing"],
+    "angry": ["angry", "mad", "frustrated", "irritated"]
+}
+
+motivational_quotes = {
+    "happy": [
+        "Keep spreading the joy!",
+        "Happiness is contagious — share it!",
+        "Your smile lights up the day!",
+        "Stay happy, stay bright!",
+        # Add 20-30 more quotes here
+    ],
+    "sad": [
+        "Tough times don’t last, tough people do.",
+        "It’s okay to cry. Healing begins when we feel.",
+        "Your story isn’t over yet. Keep going.",
+        "You’re stronger than you think.",
+        # Add 20-30 more quotes here
+    ],
+    "depressed": [
+        "You are not alone. Please talk to someone you trust.",
+        "Even the darkest night ends with sunrise.",
+        "You're loved more than you know.",
+        "Reach out. There’s always help and hope.",
+        # Add 20-30 more quotes here
+    ],
+    "neutral": [
+        "Every day is a new chance.",
+        "Something amazing might happen today.",
+        "Neutral today, shining tomorrow.",
+        # Add 20-30 more quotes here
+    ],
+    "angry": [
+        "Take a deep breath, you're in control.",
+        "Anger is one letter short of danger. Breathe.",
+        # Add 20-30 more quotes here
+    ]
+}
+
+jokes = {
+    "happy": [
+        "Why don’t scientists trust atoms? Because they make up everything!",
+        # Add 5-10 more jokes
+    ],
+    "sad": [
+        "Why did the computer cry? Because it had a hard drive!",
+        # Add 5-10 more jokes
+    ],
+    "depressed": [
+        "What do you call a bear with no teeth? A gummy bear!",
+        # Add 5-10 more jokes
+    ],
+    "neutral": [
+        "What do you get when you cross a snowman and a vampire? Frostbite!",
+        # Add 5-10 more jokes
+    ],
+    "angry": [
+        "Why did the tomato turn red? Because it saw the salad dressing!",
+        # Add 5-10 more jokes
+    ]
+}
+
+gifs = {
+    "happy": ["https://media.giphy.com/media/111ebonMs90YLu/giphy.gif"],
+    "sad": ["https://media.giphy.com/media/l2JHRhAtnJSDNJ2py/giphy.gif"],
+    "depressed": ["https://media.giphy.com/media/3og0IPxMM0erATueVW/giphy.gif"],
+    "neutral": ["https://media.giphy.com/media/26gsjCZpPolPr3sBy/giphy.gif"],
+    "angry": ["https://media.giphy.com/media/3ohhwp0HA8HVRc5vIc/giphy.gif"]
+    # Add more gifs under each mood
+}
+
+youtube_links = {
+    "happy": ["https://www.youtube.com/watch?v=ZbZSe6N_BXs"],
+    "sad": ["https://www.youtube.com/watch?v=2vjPBrBU-TM"],
+    "depressed": ["https://www.youtube.com/watch?v=2c6ZgFiZTnU"],
+    "neutral": ["https://www.youtube.com/watch?v=JGwWNGJdvx8"],
+    "angry": ["https://www.youtube.com/watch?v=K0ibBPhiaG0"]
+}
+
+spotify_links = {
+    "happy": ["https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"],
+    "sad": ["https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1"],
+    "depressed": ["https://open.spotify.com/playlist/37i9dQZF1DX7gIoKXt0gmx"],
+    "neutral": ["https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0"],
+    "angry": ["https://open.spotify.com/playlist/37i9dQZF1DWYQkbn99Zdi2"]
 }
 
 questions = [
-    "How are you feeling today in one word?",
-    "What happened today that affected your mood?",
-    "What's something on your mind right now?",
-    "How do you feel physically and mentally right now?",
-    "If you could change one thing about your day, what would it be?"
+    "How do you feel right now in one word?",
+    "What’s the one thing on your mind today?",
+    "What kind of day did you have today?",
+    "Describe your mood using any emotion.",
+    "What's the biggest feeling you had today?"
 ]
 
-if "q_index" not in st.session_state:
-    st.session_state.q_index = 0
-if "responses" not in st.session_state:
-    st.session_state.responses = []
-if "user_input" not in st.session_state:
-    st.session_state.user_input = ""
-
-def advance():
-    if st.session_state.user_input.strip():
-        st.session_state.responses.append(st.session_state.user_input.strip())
-        st.session_state.q_index += 1
-        st.session_state.user_input = ""
-
-def detect_mood(texts):
-    combined = " ".join(texts).lower()
-    keywords = ["depressed", "hopeless", "suicidal", "worthless", "numb", "empty", "i want to die", "kill myself"]
-    if any(k in combined for k in keywords):
-        return "depressed"
-    polarity = sum(TextBlob(t).sentiment.polarity for t in texts) / len(texts)
-    if polarity >= 0.5:
-        return "joyful"
-    elif 0.2 <= polarity < 0.5:
-        return "happy"
-    elif -0.2 < polarity < 0.2:
-        return "neutral"
-    elif -0.6 < polarity <= -0.2:
-        return "sad"
-    else:
-        return "depressed"
-
-st.set_page_config(page_title="Mood Detector AI 🎭", layout="centered")
+# ----------------------------- UI Setup -----------------------------
+st.set_page_config(page_title="Conversational Mood Detector", layout="centered")
 st.title("🧠 Conversational Mood Detector")
 
-q_index = st.session_state.q_index
-if q_index < len(questions):
-    st.subheader(f"Q{q_index + 1}: {questions[q_index]}")
-    st.text_input("",
-        key="user_input",
-        placeholder="Type your response and press Enter...",
-        on_change=advance
-    )
-else:
-    mood = detect_mood(st.session_state.responses)
-    data = mood_data.get(mood, mood_data["neutral"])
+responses = []
+for question in questions:
+    ans = st.text_input(question, key=question)
+    if ans:
+        responses.append(ans.lower())
+    else:
+        st.stop()
 
-    st.balloons()
-    st.success(f"🎯 Detected Mood: **{mood.upper()}**")
-    st.image(random.choice(data["gifs"]), use_container_width=True)
+# ----------------------------- Mood Detection -----------------------------
+def detect_mood(texts):
+    mood_scores = {mood: 0 for mood in mood_keywords}
+    for text in texts:
+        blob = TextBlob(text)
+        for mood, words in mood_keywords.items():
+            if any(word in text for word in words):
+                mood_scores[mood] += 1
+        if blob.sentiment.polarity > 0.4:
+            mood_scores["happy"] += 1
+        elif blob.sentiment.polarity < -0.4:
+            mood_scores["depressed"] += 1
+    return max(mood_scores, key=mood_scores.get)
 
-    st.subheader("💬 Motivation")
-    for quote in random.sample(data["quotes"], min(3, len(data["quotes"]))):
-        st.info(quote)
+final_mood = detect_mood(responses)
+st.subheader(f"🌟 Detected Mood: `{final_mood.upper()}`")
 
-    st.subheader("🎧 Spotify")
-    for link in data["spotify"]:
-        st.markdown(f"[🎵 Open Playlist]({link})")
-
-    st.subheader("📺 YouTube")
-    for link in random.sample(data["youtube"], min(3, len(data["youtube"]))):
-        st.markdown(f"[▶ Watch Video]({link})")
-
-    st.subheader("😂 Joke")
-    st.write(random.choice(data["jokes"]))
-
-    if st.button("🔁 Start Again"):
-        st.session_state.q_index = 0
-        st.session_state.responses = []
-        st.session_state.user_input = ""
-        st.experimental_rerun()
+# ----------------------------- Results -----------------------------
+st.image(random.choice(gifs[final_mood]), width=400)
+st.markdown(f"**🎧 Spotify Playlist:** [Listen Now]({random.choice(spotify_links[final_mood])})")
+st.markdown(f"**📺 YouTube Video:** [Watch Now]({random.choice(youtube_links[final_mood])})")
+st.success(random.choice(motivational_quotes[final_mood]))
+st.info(random.choice(jokes[final_mood]))
