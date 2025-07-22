@@ -1,79 +1,96 @@
 import streamlit as st
 from textblob import TextBlob
-import random
+import time
 
-# ------------------ Mood Data ------------------
-mood_data = {
-    "happy": {
-        "quote": "Happiness is not something ready made. It comes from your own actions.",
-        "joke": "Why don’t scientists trust atoms? Because they make up everything!",
-        "spotify": "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",
-        "gif": "https://media.giphy.com/media/yoJC2Olx0ekMy2nX7W/giphy.gif"
-    },
-    "sad": {
-        "quote": "Tough times never last, but tough people do.",
-        "joke": "Why did the sad man bring a ladder to the bar? Because he was going through some ups and downs.",
-        "spotify": "https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1",
-        "gif": "https://media.giphy.com/media/9Y5BbDSkSTiY8/giphy.gif"
-    },
-    "depressed": {
-        "quote": "This too shall pass. You are stronger than you think.",
-        "joke": "Why don’t skeletons fight each other? They don’t have the guts.",
-        "spotify": "https://open.spotify.com/playlist/37i9dQZF1DX3YSRoSdA634",
-        "gif": "https://media.giphy.com/media/3o6ZsYm5Xx2Z4qNf0k/giphy.gif"
-    },
-    "neutral": {
-        "quote": "Keep going. Everything you need will come to you at the perfect time.",
-        "joke": "Why did the computer show up at work late? It had a hard drive!",
-        "spotify": "https://open.spotify.com/playlist/37i9dQZF1DWYBO1MoTDhZI",
-        "gif": "https://media.giphy.com/media/jUwpNzg9IcyrK/giphy.gif"
-    }
+# Mood-based content
+mood_quotes = {
+    "happy": [
+        "Keep smiling, because life is a beautiful thing!",
+        "The purpose of our lives is to be happy.",
+    ],
+    "sad": [
+        "Tough times never last, but tough people do.",
+        "Stars can't shine without darkness.",
+    ],
+    "neutral": [
+        "Be present in all things and thankful for all things.",
+        "Neutral today? Let tomorrow be brighter.",
+    ],
+    "depressed": [
+        "You're not alone. You matter. Keep going.",
+        "The darkest nights produce the brightest stars.",
+    ],
 }
 
-# ------------------ App UI ------------------
-st.set_page_config(page_title="Conversational Mood Detector", layout="centered", initial_sidebar_state="auto")
+spotify_links = {
+    "happy": "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",
+    "sad": "https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1",
+    "neutral": "https://open.spotify.com/playlist/37i9dQZF1DWU0ScTcjJBdj",
+    "depressed": "https://open.spotify.com/playlist/37i9dQZF1DX3YSRoSdA634",
+}
 
-st.title("🧠 Conversational Mood Detector")
-st.markdown("Hi there! Let's talk and understand how you're feeling today 😊")
+youtube_links = {
+    "happy": "https://www.youtube.com/watch?v=ZbZSe6N_BXs",
+    "sad": "https://www.youtube.com/watch?v=ho9rZjlsyYY",
+    "neutral": "https://www.youtube.com/watch?v=lTRiuFIWV54",
+    "depressed": "https://www.youtube.com/watch?v=1rD8yc8yKiY",
+}
+
+sensitive_words = ["depressed", "suicide", "hopeless", "worthless", "kill myself", "end it all", "give up"]
 
 questions = [
     "How are you feeling right now in one word?",
-    "What was the best part of your day?",
-    "Did anything upset you recently?",
-    "How are you feeling about tomorrow?",
-    "Describe your current energy level."
+    "What made you feel this way?",
+    "Do you want to talk about your day?",
+    "What’s the one thing on your mind right now?",
+    "Do you feel energetic or tired?",
 ]
 
-responses = []
+# Session state to store responses
+if "step" not in st.session_state:
+    st.session_state.step = 0
+if "responses" not in st.session_state:
+    st.session_state.responses = []
 
-for q in questions:
-    answer = st.text_input(q, key=q)
+st.title("🧠 Conversational Mood Detector")
+
+if st.session_state.step < len(questions):
+    st.write(f"**Q{st.session_state.step+1}:** {questions[st.session_state.step]}")
+    answer = st.text_input("Your response", key=f"q{st.session_state.step}")
+
     if answer:
-        responses.append(answer)
+        st.session_state.responses.append(answer)
+        st.session_state.step += 1
+        time.sleep(0.3)
+        st.experimental_rerun()
+
+elif st.session_state.step == len(questions):
+    full_text = " ".join(st.session_state.responses).lower()
+    mood = "neutral"
+    
+    # Check for sensitive keywords
+    if any(word in full_text for word in sensitive_words):
+        mood = "depressed"
     else:
-        break
+        analysis = TextBlob(full_text).sentiment
+        if analysis.polarity > 0.3:
+            mood = "happy"
+        elif analysis.polarity < -0.3:
+            mood = "sad"
+        else:
+            mood = "neutral"
 
-# ------------------ Mood Prediction ------------------
-def predict_mood(answers):
-    full_text = " ".join(answers)
-    sentiment = TextBlob(full_text).sentiment.polarity
+    st.subheader(f"🪄 Detected Mood: **{mood.upper()}**")
+    st.write(f"💬 _{mood_quotes[mood][0]}_")
+    st.write(f"💬 _{mood_quotes[mood][1]}_")
 
-    if sentiment > 0.4:
-        return "happy"
-    elif 0.1 < sentiment <= 0.4:
-        return "neutral"
-    elif -0.4 < sentiment <= 0.1:
-        return "sad"
-    else:
-        return "depressed"
-
-if len(responses) == len(questions):
-    mood = predict_mood(responses)
-    st.success(f"🎯 Your mood is: **{mood.upper()}**")
-
-    data = mood_data[mood]
-    st.image(data["gif"], width=300)
-    st.markdown(f"💬 **Quote:** _{data['quote']}_")
-    st.markdown(f"😂 **Joke:** {data['joke']}")
-    st.markdown(f"🎵 **Music for you:** [Listen on Spotify]({data['spotify']})")
+    st.markdown("---")
+    st.markdown(f"[🎵 Listen on Spotify]({spotify_links[mood]})", unsafe_allow_html=True)
+    st.markdown(f"[📺 Watch on YouTube]({youtube_links[mood]})", unsafe_allow_html=True)
+    
+    st.markdown("🔁 Click below to restart the conversation.")
+    if st.button("Start Again"):
+        st.session_state.step = 0
+        st.session_state.responses = []
+        st.experimental_rerun()
 
