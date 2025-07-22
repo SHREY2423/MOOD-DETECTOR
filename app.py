@@ -189,4 +189,3 @@ if len(responses) == len(questions):
             st.markdown(f"- [Watch Video]({link})")
 else:
     st.warning("👉 Please answer all the questions above.")
-
