@@ -1,191 +1,164 @@
 import streamlit as st
 from textblob import TextBlob
-from transformers import pipeline
 import random
 import time
 
-# Sentiment pipeline
-classifier = pipeline("sentiment-analysis")
-
-# Mood-specific data
+# ----- MOTIVATIONAL QUOTES -----
 motivational_quotes = {
     "happy": [
-        "Happiness is not something ready made. It comes from your own actions. – Dalai Lama",
-        "The purpose of our lives is to be happy. – Dalai Lama",
-        "Happiness depends upon ourselves. – Aristotle",
-        "Smile, and let the world wonder why.",
-        "Choose happiness daily and you’ll find joy in every moment.",
-        "Enjoy the little things in life.",
-        "Happiness is the highest level of success.",
-        "Good vibes only.",
-        "Be the reason someone smiles today.",
-        "Joy is a decision, not a condition.",
-        "Happiness is contagious, spread it.",
-        "Focus on what makes you feel alive.",
-        "Happiness is homemade.",
-        "You deserve happiness.",
-        "Think happy. Be happy.",
-        "Celebrate every tiny victory.",
-        "Gratitude unlocks joy.",
-        "Life is beautiful, notice it.",
-        "You glow differently when you're happy.",
-        "Stay close to what feels like sunshine.",
-        "Live life in full bloom.",
+        "Happiness is not out there, it's in you.",
+        "Smile, it's your superpower!",
+        "Joy is the simplest form of gratitude.",
+        "Celebrate the small wins.",
+        "Happiness radiates like the fragrance from a flower.",
+        "The purpose of life is to be happy.",
         "Create your own sunshine.",
-        "You attract what you radiate.",
-        "Your vibe attracts your tribe.",
-        "Smiles are free but priceless.",
-        "Positive mind, positive life.",
-        "Be happy—it drives people crazy!",
-        "Laughter is timeless, imagination has no age.",
-        "Collect moments, not things.",
-        "Shine bright, always."
+        "Happiness is a direction, not a place.",
+        "You deserve all the good things.",
+        "Keep smiling, you're amazing!"
     ],
     "sad": [
-        "This too shall pass.",
-        "Every storm runs out of rain. — Maya Angelou",
-        "Sadness flies away on the wings of time. — Jean de La Fontaine",
-        "Healing takes time, and that's okay.",
-        "It’s okay not to be okay.",
-        "The sun will rise and we will try again.",
-        "Tears are words the heart can't say.",
-        "Sometimes you have to know sadness to appreciate happiness.",
-        "Be gentle with yourself. You're doing the best you can.",
-        "Even the darkest night will end and the sun will rise.",
+        "It's okay to feel sad. Healing starts with acceptance.",
+        "Tough times never last, but tough people do.",
         "You’re stronger than you think.",
-        "Crying isn’t a weakness.",
-        "It's okay to rest.",
-        "Healing begins with acceptance.",
-        "Let it hurt, then let it go.",
-        "You are not alone.",
-        "Take your time, one day at a time.",
-        "Everything you feel is valid.",
-        "It’s brave to ask for help.",
-        "Hope is real.",
-        "It’s okay to feel lost.",
-        "Your feelings matter.",
-        "Storms don’t last forever.",
-        "Be proud of how far you’ve come.",
-        "Small steps still move you forward.",
-        "You're allowed to feel everything.",
-        "Time heals. Be patient.",
-        "Even broken crayons still color.",
-        "Pain is temporary.",
-        "Stay. You’re not alone."
+        "This moment will pass.",
+        "Don’t give up now, you’ve come so far.",
+        "Your feelings are valid.",
+        "Take it one day at a time.",
+        "Crying isn’t a weakness, it’s strength.",
+        "You matter, even on the hardest days.",
+        "Pain is temporary. Strength is forever."
     ],
     "depressed": [
-        "You are not alone. Talk to someone you trust.",
-        "The darkest hour has only sixty minutes.",
-        "You’ve made it through 100% of your worst days. Keep going.",
-        "Your presence matters. You matter.",
-        "Reach out — someone cares.",
-        "One small step is still progress.",
-        "It’s okay to ask for help. That’s strength, not weakness.",
-        "Don’t give up now, your future self is waiting.",
-        "You are needed. You are loved.",
-        "Even the strongest feel weak sometimes. Rest, then rise.",
-        "You can start over each day.",
-        "Mental pain is real. Healing is too.",
-        "You are stronger than your thoughts.",
-        "Never be ashamed of your story.",
-        "Depression lies — don’t listen.",
-        "There’s hope, even when your brain tells you there isn’t.",
-        "Don’t suffer in silence. Talk to a friend or professional.",
-        "Suicidal thoughts do not define you.",
-        "Stay. There’s more life for you to live.",
-        "Healing is not linear, but you’re healing."
+        "You are not alone. Help is always available.",
+        "Speak up. Someone cares.",
+        "Your life matters.",
+        "You’ve survived 100% of your bad days.",
+        "This is not the end. Brighter days are ahead.",
+        "Take a deep breath. You are enough.",
+        "One step at a time. You’ve got this.",
+        "Please talk to someone. You're important.",
+        "You are not your thoughts.",
+        "Hope is real. Recovery is possible."
+    ],
+    "neutral": [
+        "Even a calm day is a blessing.",
+        "Use this time to refocus.",
+        "Pause. Breathe. Reflect.",
+        "You are in control of your direction.",
+        "Balance is key to everything.",
+        "Neutral moments give space for growth.",
+        "Sometimes no mood is a mood too.",
+        "Let stillness speak.",
+        "Today is a blank canvas.",
+        "Progress, even in silence."
     ]
 }
 
-spotify_links = {
-    "happy": [
-        "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",
-        "https://open.spotify.com/playlist/37i9dQZF1DWYBO1MoTDhZI",
-        "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0"
-    ],
-    "sad": [
-        "https://open.spotify.com/playlist/37i9dQZF1DWVrtsSlLKzro",
-        "https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1",
-        "https://open.spotify.com/playlist/37i9dQZF1DX3YSRoSdA634"
-    ],
-    "depressed": [
-        "https://open.spotify.com/playlist/37i9dQZF1DX7gIoKXt0gmx",
-        "https://open.spotify.com/playlist/37i9dQZF1DX3YSRoSdA634"
-    ]
+# ----- SPOTIFY AND YOUTUBE LINKS -----
+media_recommendations = {
+    "happy": {
+        "spotify": [
+            "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",
+            "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0"
+        ],
+        "youtube": [
+            "https://www.youtube.com/watch?v=ZbZSe6N_BXs",  # Happy - Pharrell
+            "https://www.youtube.com/watch?v=OPf0YbXqDm0"   # Uptown Funk
+        ]
+    },
+    "sad": {
+        "spotify": [
+            "https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1",
+            "https://open.spotify.com/playlist/37i9dQZF1DX7gIoKXt0gmx"
+        ],
+        "youtube": [
+            "https://www.youtube.com/watch?v=J_ub7Etch2U",  # Fix You - Coldplay
+            "https://www.youtube.com/watch?v=uelHwf8o7_U"   # Love The Way You Lie
+        ]
+    },
+    "depressed": {
+        "spotify": [
+            "https://open.spotify.com/playlist/1rqqCSm0Qe4I9rUvWncaom",
+            "https://open.spotify.com/playlist/2FQyEcNfb52wYISgVLzYZd"
+        ],
+        "youtube": [
+            "https://www.youtube.com/watch?v=VN6c4hN_NL8",  # Motivational Speech
+            "https://www.youtube.com/watch?v=mgmVOuLgFB0"   # Rise Again
+        ]
+    },
+    "neutral": {
+        "spotify": [
+            "https://open.spotify.com/playlist/37i9dQZF1DXc2aPBXGmXrt",
+            "https://open.spotify.com/playlist/37i9dQZF1DWUvHZA1zLcjW"
+        ],
+        "youtube": [
+            "https://www.youtube.com/watch?v=2vjPBrBU-TM",  # Chandelier - Sia
+            "https://www.youtube.com/watch?v=6hzrDeceEKc"   # Wonderwall - Oasis
+        ]
+    }
 }
 
-youtube_links = {
-    "happy": [
-        "https://youtu.be/ZbZSe6N_BXs",  # Happy - Pharrell Williams
-        "https://youtu.be/y6Sxv-sUYtM"
-    ],
-    "sad": [
-        "https://youtu.be/7qEHsqek33s",  # Lewis Capaldi - Someone You Loved
-        "https://youtu.be/Jk1nw4Uoxig"
-    ],
-    "depressed": [
-        "https://youtu.be/2vjPBrBU-TM",  # Sia - Chandelier
-        "https://youtu.be/M6sSOhLftK4"
-    ]
-}
-
-# Suicide/depression keywords
-depression_keywords = ["depressed", "suicide", "kill myself", "no one cares", "worthless", "hopeless"]
-
-# Streamlit UI
+# ----- INIT -----
 st.set_page_config(page_title="Conversational Mood Detector", layout="centered")
 st.title("🧠 Conversational Mood Detector")
-st.write("Hi! Let's understand how you're feeling today. Please answer the following questions.")
+st.write("Let's talk and understand how you're feeling today.")
 
+# ----- QUESTIONS -----
 questions = [
-    "1️⃣ How are you feeling right now (in one word)?",
-    "2️⃣ What kind of day did you have?",
-    "3️⃣ Describe your mood using a short sentence.",
-    "4️⃣ Are you feeling motivated or tired?",
-    "5️⃣ Do you feel like talking to someone?"
+    "1️⃣ How are you feeling right now in one word?",
+    "2️⃣ What kind of thoughts are you having today?",
+    "3️⃣ Have you felt this way recently?",
+    "4️⃣ What's the reason behind your mood today?",
+    "5️⃣ Describe your current mental energy: High / Medium / Low?"
 ]
 
-responses = []
+if "answers" not in st.session_state:
+    st.session_state.answers = []
+if "step" not in st.session_state:
+    st.session_state.step = 0
 
-for q in questions:
-    response = st.text_input(q, key=q)
-    if response:
-        responses.append(response)
-        time.sleep(0.5)
-
-if len(responses) == len(questions):
-    full_text = " ".join(responses).lower()
-
-    # Check for depression keywords
-    if any(word in full_text for word in depression_keywords):
+if st.session_state.step < len(questions):
+    answer = st.text_input(questions[st.session_state.step], key=f"q{st.session_state.step}")
+    if answer:
+        st.session_state.answers.append(answer)
+        st.session_state.step += 1
+        st.experimental_rerun()
+else:
+    full_text = " ".join(st.session_state.answers).lower()
+    
+    # Detect 'depressed' keywords
+    depressed_keywords = ['depressed', 'suicide', 'worthless', 'hopeless', 'end it', 'kill myself']
+    if any(word in full_text for word in depressed_keywords):
         mood = "depressed"
     else:
-        sentiment = classifier(full_text)[0]
-        polarity = TextBlob(full_text).sentiment.polarity
-
-        if sentiment['label'] == "POSITIVE" and polarity > 0.2:
+        blob = TextBlob(full_text)
+        polarity = blob.sentiment.polarity
+        if polarity > 0.2:
             mood = "happy"
-        elif sentiment['label'] == "NEGATIVE" and polarity < -0.2:
+        elif polarity < -0.2:
             mood = "sad"
         else:
             mood = "neutral"
 
-    st.subheader(f"🧠 Predicted Mood: **{mood.upper()}**")
+    st.subheader(f"🧠 Detected Mood: **{mood.capitalize()}**")
 
-    # Show motivational quote
-    if mood in motivational_quotes:
-        st.info(f"💡 {random.choice(motivational_quotes[mood])}")
+    # Show quote
+    quote = random.choice(motivational_quotes[mood])
+    st.success(f"💬 {quote}")
 
-    # Show Spotify links
-    if mood in spotify_links:
-        st.markdown("🎧 **Spotify Playlist:**")
-        for link in spotify_links[mood]:
-            st.markdown(f"- [Open Playlist]({link})")
+    # Show media
+    st.markdown("### 🎧 Recommended Spotify Playlist:")
+    for link in media_recommendations[mood]["spotify"]:
+        st.markdown(f"- [Listen here]({link})")
 
-    # Show YouTube videos
-    if mood in youtube_links:
-        st.markdown("📺 **YouTube Videos:**")
-        for link in youtube_links[mood]:
-            st.markdown(f"- [Watch Video]({link})")
-else:
-    st.warning("👉 Please answer all the questions above.")
+    st.markdown("### 📺 Recommended YouTube Videos:")
+    for link in media_recommendations[mood]["youtube"]:
+        st.markdown(f"- [Watch here]({link})")
+
+    # Restart Option
+    if st.button("🔁 Restart Conversation"):
+        st.session_state.answers = []
+        st.session_state.step = 0
+        st.experimental_rerun()
+
