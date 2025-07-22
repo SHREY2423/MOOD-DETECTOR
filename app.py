@@ -2,147 +2,110 @@ import streamlit as st
 from textblob import TextBlob
 import random
 
-st.set_page_config(page_title="🧠 Conversational Mood Detector", layout="centered")
-st.markdown("""
-    <style>
-        .stApp {
-            background: linear-gradient(to bottom, #e0f7fa, #ffffff);
-            font-family: 'Segoe UI', sans-serif;
-        }
-        .question-box {
-            background-color: #f1f1f1;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-        .sticker {
-            width: 100%;
-            text-align: center;
-            margin-top: 30px;
-        }
-    </style>
-""", unsafe_allow_html=True)
+st.set_page_config(page_title="Conversational Mood Detector", layout="centered")
 
-st.title("🧠 Conversational Mood Detector")
-st.subheader("Let's talk and discover how you're truly feeling 😊")
-
+# ========== Data ==========
 questions = [
     "How are you feeling right now in one word?",
-    "What was the highlight of your day?",
-    "Anything stressing you out recently?",
-    "What's something that made you smile today?",
-    "Describe your current mood in a sentence."
+    "What has been bothering you lately?",
+    "When did you last feel genuinely happy?",
+    "Do you feel heard and understood?",
+    "What would make your day better today?",
+    "Any thoughts you want to share?"
 ]
 
-if 'step' not in st.session_state:
+mood_keywords = {
+    "depressed": ["depressed", "suicide", "hopeless", "worthless", "end my life", "tired of life"],
+    "sad": ["sad", "upset", "hurt", "cry", "lonely"],
+    "happy": ["happy", "joy", "excited", "great", "amazing"],
+    "neutral": ["okay", "fine", "normal", "good"]
+}
+
+motivational_quotes = {
+    "depressed": [
+        "You are not alone. Keep going.",
+        "This too shall pass.",
+        "Your story isn't over yet.",
+        "Dark times make the light brighter.",
+        "You are stronger than your thoughts."
+    ],
+    "sad": [
+        "Tears are words the heart can’t say.",
+        "Every storm runs out of rain.",
+        "Keep your face toward the sunshine.",
+        "Let it out, and then let it go.",
+        "Healing takes time. You're doing fine."
+    ],
+    "happy": [
+        "Keep shining, you're doing amazing!",
+        "Happiness looks great on you.",
+        "Enjoy every moment!",
+        "Spread the joy!",
+        "Keep smiling 😄"
+    ],
+    "neutral": [
+        "Stay steady and focused.",
+        "Every day is a fresh start.",
+        "Breathe. You're doing fine.",
+        "Calm is a superpower.",
+        "Balance is key to everything."
+    ]
+}
+
+mood_gifs = {
+    "depressed": "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif",
+    "sad": "https://media.giphy.com/media/ROF8OQvDmxytW/giphy.gif",
+    "happy": "https://media.giphy.com/media/1BdIPQHXOfB7fziT5I/giphy.gif",
+    "neutral": "https://media.giphy.com/media/3ohc1fQ1pFZnp6BEX2/giphy.gif"
+}
+
+spotify_links = {
+    "depressed": "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0",
+    "sad": "https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1",
+    "happy": "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",
+    "neutral": "https://open.spotify.com/playlist/37i9dQZF1DWUvHZA1zLcjW"
+}
+
+# ========== Functions ==========
+def detect_mood(responses):
+    text = " ".join(responses).lower()
+    for mood, keywords in mood_keywords.items():
+        if any(word in text for word in keywords):
+            return mood
+    sentiment = TextBlob(text).sentiment.polarity
+    if sentiment < -0.4:
+        return "depressed"
+    elif sentiment < 0:
+        return "sad"
+    elif sentiment > 0.3:
+        return "happy"
+    else:
+        return "neutral"
+
+# ========== Session State ==========
+if "step" not in st.session_state:
     st.session_state.step = 0
-    st.session_state.answers = []
+if "responses" not in st.session_state:
+    st.session_state.responses = []
+
+# ========== UI ==========
+st.markdown("<h1 style='text-align: center;'>🧠 Conversational Mood Detector</h1>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align: center;'>Let's talk and discover how you're truly feeling 😊</h3>", unsafe_allow_html=True)
 
 if st.session_state.step < len(questions):
-    with st.form(key=f"question_form_{st.session_state.step}"):
-        st.markdown(f"**{questions[st.session_state.step]}**")
-        user_input = st.text_input("Your answer:")
-        submit = st.form_submit_button("Next")
-
-    if submit and user_input:
-        st.session_state.answers.append(user_input)
-        st.session_state.step += 1
-        st.experimental_rerun()
+    st.markdown(f"**{questions[st.session_state.step]}**")
+    answer = st.text_input("Your answer:", key=f"q_{st.session_state.step}")
+    if st.button("Next"):
+        if answer.strip():
+            st.session_state.responses.append(answer)
+            st.session_state.step += 1
 else:
-    all_text = " ".join(st.session_state.answers)
-    blob = TextBlob(all_text)
-    polarity = blob.sentiment.polarity
-
-    # Basic mood detection based on polarity and keywords
-    if any(word in all_text.lower() for word in ['depressed', 'suicide', 'hopeless']):
-        mood = 'depressed'
-    elif polarity > 0.3:
-        mood = 'happy'
-    elif polarity < -0.3:
-        mood = 'sad'
-    else:
-        mood = 'neutral'
-
-    mood_data = {
-        "happy": {
-            "quote": [
-                "Keep smiling, because life is a beautiful thing!",
-                "Happiness is not by chance, but by choice.",
-                "Every day is a new beginning, take a deep breath and start again.",
-            ],
-            "gif": "https://media.giphy.com/media/yoJC2Olx0ekMy2nX7W/giphy.gif",
-            "joke": [
-                "Why don’t scientists trust atoms? Because they make up everything!",
-                "Why did the scarecrow win an award? Because he was outstanding in his field!"
-            ],
-            "spotify": "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0",
-            "youtube": "https://www.youtube.com/watch?v=ZbZSe6N_BXs"
-        },
-        "sad": {
-            "quote": [
-                "Tough times don’t last, but tough people do.",
-                "This too shall pass. Keep going.",
-                "Every storm runs out of rain."
-            ],
-            "gif": "https://media.giphy.com/media/9Y5BbDSkSTiY8/giphy.gif",
-            "joke": [
-                "Why don’t skeletons fight each other? They don’t have the guts.",
-                "I'm reading a book on anti-gravity. It's impossible to put down!"
-            ],
-            "spotify": "https://open.spotify.com/playlist/1BKTIRsYxVtUgF8RY7F0wI",
-            "youtube": "https://www.youtube.com/watch?v=hoNb6HuNmU0"
-        },
-        "depressed": {
-            "quote": [
-                "You're stronger than you think.",
-                "It's okay to ask for help. You’re not alone.",
-                "The darkest nights produce the brightest stars."
-            ],
-            "gif": "https://media.giphy.com/media/26gsgIkzFv3RVik1i/giphy.gif",
-            "joke": [
-                "Why did the coffee file a police report? It got mugged!",
-                "Parallel lines have so much in common… It’s a shame they’ll never meet."
-            ],
-            "spotify": "https://open.spotify.com/playlist/4cJcrbiwGr9aZp5N0HEeJ2",
-            "youtube": "https://www.youtube.com/watch?v=MejbOFk7H6c"
-        },
-        "neutral": {
-            "quote": [
-                "Sometimes, being neutral helps you see things clearly.",
-                "Take a moment to breathe. You’re doing fine.",
-                "Just keep swimming." 
-            ],
-            "gif": "https://media.giphy.com/media/QBd2kLB5qDmysEXre9/giphy.gif",
-            "joke": [
-                "Why can’t your nose be 12 inches long? Because then it would be a foot!",
-                "What do you call a fake noodle? An Impasta!",
-                "Why don’t skeletons fight each other? They don’t have the guts.",
-                "I told my wife she was drawing her eyebrows too high. She looked surprised.",
-                "What did one wall say to the other? I’ll meet you at the corner."
-            ],
-            "spotify": "https://open.spotify.com/playlist/6ftTNMc3VB0pvVSM9fStGA",
-            "youtube": "https://www.youtube.com/watch?v=HgzGwKwLmgM"
-        }
-    }
-
-    data = mood_data.get(mood, mood_data["neutral"])
-
-    st.success(f"Your mood is likely: **{mood.upper()}** 🎯")
-
-    st.image(data["gif"], caption=f"{mood.capitalize()} vibes")
-    st.write(f"🎵 [Spotify Playlist]({data['spotify']}) | 📺 [YouTube Video]({data['youtube']})")
-
-    st.markdown(f"**💬 Quote:** {random.choice(data['quote'])}")
-    st.markdown(f"**😂 Joke:** {random.choice(data['joke'])}")
-
-    st.markdown("""
-        <div class="sticker">
-            <img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" width="200" />
-            <p><strong>AI Mood Detector powered by ChatGPT</strong></p>
-        </div>
-    """, unsafe_allow_html=True)
-
-    if st.button("Restart Conversation"):
+    mood = detect_mood(st.session_state.responses)
+    st.subheader(f"🌈 Your mood is detected as: **{mood.upper()}**")
+    st.image(mood_gifs[mood], use_column_width=True)
+    st.success(random.choice(motivational_quotes[mood]))
+    st.markdown(f"[🎧 Listen on Spotify]({spotify_links[mood]})")
+    st.markdown("🔄 Want to restart the conversation?")
+    if st.button("Start Over"):
         st.session_state.step = 0
-        st.session_state.answers = []
-        st.experimental_rerun()
+        st.session_state.responses = []
