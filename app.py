@@ -212,4 +212,4 @@ else:
     except Exception as e:
         st.error(f"⚠ An error occurred: {e}")
 
-st.markdown("<br><br><p style='text-align: right;'>Made with ❤️ by SHREY<
+st.markdown("<br><br><p style='text-align: right;'> Made with ❤️ by SHREY <
