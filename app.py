@@ -1,4 +1,123 @@
 import streamlit as st
+import random
+from textblob import TextBlob
+
+# --- Mood-based content ---
+quotes = {
+    "happy": ["Keep smiling, life is beautiful!", "Happiness is a choice."],
+    "sad": ["This too shall pass.", "Every storm runs out of rain."],
+    "angry": ["Breathe. Let it go.", "Anger doesn’t solve anything."],
+    "depressed": ["You're not alone. Please talk to someone.", "Even the darkest night ends with sunrise."],
+    "joyful": ["Spread your joy!", "Joy is contagious!"]
+}
+
+# --- Background images (URLs or local) ---
+backgrounds = [
+    "https://images.unsplash.com/photo-1503264116251-35a269479413",
+    "https://images.unsplash.com/photo-1522199710521-72d69614c702",
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+    "https://images.unsplash.com/photo-1493244040629-496f6d136cc3"
+]
+
+# --- Random background ---
+bg_url = random.choice(backgrounds)
+st.markdown(
+    f"""
+    <style>
+    .stApp {{
+        background-image: url('{bg_url}');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+    }}
+    .main-container {{
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# --- Header ---
+st.markdown("<div class='main-container'>", unsafe_allow_html=True)
+st.title("🧠 Conversational Mood Detector")
+st.write("Let's talk and find out how you're feeling today 😊")
+
+# --- Mood detection logic ---
+def detect_mood(texts):
+    combined_text = " ".join(texts).lower()
+
+    depression_keywords = [
+        "depressed", "hopeless", "suicidal", "empty", "worthless", "pointless", "dark",
+        "numb", "burned out", "i hate myself", "give up", "i want to die", "kill myself",
+        "pain", "unloved", "hate everything", "ending", "can't go on", "overwhelmed", "broken",
+        "no one cares", "lost", "why try", "nothing matters", "i'm done", "hurt", "hell", "kill"
+    ]
+    joyful_keywords = ["joyful", "grateful", "thankful", "blessed", "elated", "euphoric"]
+    happy_keywords = ["happy", "smiling", "excited", "good", "content", "satisfied"]
+    angry_keywords = ["angry", "mad", "furious", "annoyed", "rage", "frustrated"]
+    sad_keywords = ["sad", "down", "blue", "lonely", "crying", "upset", "disappointed"]
+
+    if any(kw in combined_text for kw in depression_keywords):
+        return "depressed"
+    elif any(kw in combined_text for kw in joyful_keywords):
+        return "joyful"
+    elif any(kw in combined_text for kw in happy_keywords):
+        return "happy"
+    elif any(kw in combined_text for kw in angry_keywords):
+        return "angry"
+    elif any(kw in combined_text for kw in sad_keywords):
+        return "sad"
+
+    # Sentiment fallback
+    polarity = sum(TextBlob(t).sentiment.polarity for t in texts) / len(texts)
+    if polarity >= 0.5:
+        return "joyful"
+    elif 0.2 <= polarity < 0.5:
+        return "happy"
+    elif -0.2 < polarity < 0.2:
+        return "neutral"
+    elif -0.6 < polarity <= -0.2:
+        return "sad"
+    else:
+        return "depressed"
+
+# --- Conversation input ---
+user_inputs = []
+st.subheader("🗣️ Talk to me...")
+
+if 'question_num' not in st.session_state:
+    st.session_state.question_num = 0
+    st.session_state.responses = []
+
+questions = [
+    "How are you feeling today?",
+    "What’s been on your mind lately?",
+    "How was your day?",
+    "What do you want to talk about?"
+]
+
+if st.session_state.question_num < len(questions):
+    with st.form(key=f"form_{st.session_state.question_num}"):
+        answer = st.text_input(questions[st.session_state.question_num])
+        submit = st.form_submit_button("Next")
+
+        if submit and answer:
+            st.session_state.responses.append(answer)
+            st.session_state.question_num += 1
+else:
+    mood = detect_mood(st.session_state.responses)
+    st.success(f"🎯 We detected your mood as: **{mood.upper()}**")
+    st.markdown(f"💬 *Quote for you:* **{random.choice(quotes.get(mood, ['Stay strong.']))}**")
+    st.balloons()
+    st.session_state.question_num = 0
+    st.session_state.responses = []
+
+st.markdown("</div>", unsafe_allow_html=True)
+import streamlit as st
 from textblob import TextBlob
 import random
 
