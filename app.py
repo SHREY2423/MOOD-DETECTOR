@@ -141,12 +141,38 @@ def advance():
 
 def detect_mood(texts):
     combined_text = " ".join(texts).lower()
-    depression_keywords = [
-        "depressed", "hopeless", "suicidal", "empty", "worthless",
-        "pointless", "dark", "numb", "burned out", "i hate myself", "give up"
-    ]
-    if any(kw in combined_text for kw in depression_keywords):
-        return "depressed"
+
+    keyword_map = {
+        "depressed": [
+            "depressed", "hopeless", "suicidal", "empty", "worthless", "pointless",
+            "numb", "i hate myself", "give up", "no reason to live", "dark thoughts",
+            "want to end it", "tired of life", "done with everything", "exhausted emotionally"
+        ],
+        "sad": [
+            "sad", "lonely", "down", "heartbroken", "unhappy", "cry", "lost", "hurting",
+            "tears", "blue", "broken", "miserable", "low", "disappointed"
+        ],
+        "angry": [
+            "angry", "mad", "furious", "pissed", "irritated", "annoyed", "rage", "frustrated",
+            "fuming", "exploding", "hate", "agitated", "snapped", "grrr"
+        ],
+        "joyful": [
+            "ecstatic", "elated", "euphoric", "on top of the world", "grateful", "cheerful",
+            "exuberant", "overjoyed", "radiant", "blessed", "heavenly", "in love with life"
+        ],
+        "happy": [
+            "happy", "smiling", "good", "great", "awesome", "fantastic", "nice", "chill",
+            "content", "fine", "peaceful", "satisfied", "positive", "excited", "delighted"
+        ],
+        "neutral": [
+            "okay", "meh", "normal", "nothing", "average", "typical", "boring", "so-so",
+            "same as always", "usual", "fine", "not bad", "just here", "stable"
+        ]
+    }
+
+    for mood, keywords in keyword_map.items():
+        if any(kw in combined_text for kw in keywords):
+            return mood
 
     polarity = sum(TextBlob(t).sentiment.polarity for t in texts) / len(texts)
 
