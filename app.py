@@ -11,205 +11,201 @@ mood_data = {
         ],
         "jokes": [
             "Why do bees have sticky hair? Because they use honeycombs! 🐝",
-            "Why did the scarecrow win an award? Because he was outstanding in his field! 🌾"
+            "What do you call a singing computer? A Dell! 🎤"
         ],
         "youtube": [
-            "https://www.youtube.com/watch?v=ZbZSe6N_BXs",
-            "https://www.youtube.com/watch?v=60ItHLz5WEA"
+            "https://www.youtube.com/watch?v=3GwjfUFyY6M",
+            "https://www.youtube.com/watch?v=ZbZSe6N_BXs"
         ],
-        "spotify": [
-            "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"
-        ],
+        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"],
         "gifs": [
             "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif",
-            "https://media.giphy.com/media/3o6Zt481isNVuQI1l6/giphy.gif",
-            "https://media.giphy.com/media/jUwpNzg9IcyrK/giphy.gif",
-            "https://media.giphy.com/media/xT5LMHxhOfscxPfIfm/giphy.gif",
-            "https://media.giphy.com/media/1BdIPqLDYwL04VtFji/giphy.gif"
+            "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif"
         ]
     },
     "happy": {
         "quotes": [
-            "Happiness is a warm puppy 🐶",
-            "Do more of what makes you happy 🌟"
+            "Keep smiling, because life is a beautiful thing! 😊",
+            "Happiness is contagious, spread it! 🌞"
         ],
         "jokes": [
-            "What do you call a happy cowboy? A jolly rancher 🤠",
-            "Why did the banana go to the party? Because it was a-peeling! 🍌"
+            "Why don’t scientists trust atoms? Because they make up everything! 🤣",
+            "Why did the scarecrow win an award? Because he was outstanding in his field! 🏆"
         ],
         "youtube": [
-            "https://www.youtube.com/watch?v=CMNry4PE93Y"
+            "https://www.youtube.com/watch?v=60ItHLz5WEA",
+            "https://www.youtube.com/watch?v=3GwjfUFyY6M"
         ],
-        "spotify": [
-            "https://open.spotify.com/playlist/37i9dQZF1DWYBO1MoTDhZI"
-        ],
+        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"],
         "gifs": [
-            "https://media.giphy.com/media/111ebonMs90YLu/giphy.gif",
-            "https://media.giphy.com/media/9Y5BbDSkSTiY8/giphy.gif",
-            "https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif",
-            "https://media.giphy.com/media/yoJC2Olx0ekMy2nX7W/giphy.gif",
-            "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif"
+            "https://media.giphy.com/media/yoJC2A59OCZHs1LXvW/giphy.gif",
+            "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif"
         ]
     },
     "sad": {
         "quotes": [
-            "It’s okay to not be okay 💙",
+            "It’s okay to not be okay. 💙",
             "Tough times never last, but tough people do 💪"
         ],
         "jokes": [
-            "Why did the math book look sad? It had too many problems 📚",
-            "Why did the computer visit the therapist? Too many bytes of sadness 💻"
+            "Why did the math book look sad? Because it had too many problems. 😢",
+            "Why did the computer visit the therapist? Too many bytes of sadness. 🖥"
         ],
         "youtube": [
+            "https://www.youtube.com/watch?v=RB-RcX5DS5A",
             "https://www.youtube.com/watch?v=2vjPBrBU-TM"
         ],
-        "spotify": [
-            "https://open.spotify.com/playlist/37i9dQZF1DWVV27DiNWxkR"
-        ],
+        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1"],
         "gifs": [
-            "https://media.giphy.com/media/d2lcHJTG5Tscg/giphy.gif",
             "https://media.giphy.com/media/3oz8xKaR836UJOYeOc/giphy.gif",
-            "https://media.giphy.com/media/JYsWwF82EGnpC/giphy.gif",
-            "https://media.giphy.com/media/d2lcHJTG5Tscg/giphy.gif",
-            "https://media.giphy.com/media/l0MYC0LajbaPoEADu/giphy.gif"
+            "https://media.giphy.com/media/d2lcHJTG5Tscg/giphy.gif"
         ]
     },
     "angry": {
         "quotes": [
-            "For every minute you are angry, you lose 60 seconds of happiness ⏳",
-            "Keep calm, anger is temporary 🧘"
+            "Calm is a superpower. 🧘",
+            "Breathe. It’s just a bad day, not a bad life. 🌪"
         ],
         "jokes": [
-            "Why did the angry Jedi cross the road? To get to the dark side 🌌",
-            "What do you call an angry carrot? A steamed veggie 🥕"
+            "Why don’t skeletons fight each other? They don’t have the guts. 💀",
+            "I'm not arguing, I'm just passionately expressing my rightness 😤"
         ],
         "youtube": [
-            "https://www.youtube.com/watch?v=hLQl3WQQoQ0"
+            "https://www.youtube.com/watch?v=kXYiU_JCYtU"
         ],
-        "spotify": [
-            "https://open.spotify.com/playlist/37i9dQZF1DX6xZZEgC9Ubl"
-        ],
+        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP"],
         "gifs": [
-            "https://media.giphy.com/media/l3q2K5jinAlChoCLS/giphy.gif",
-            "https://media.giphy.com/media/3og0IPxMM0erATueVW/giphy.gif",
-            "https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif",
-            "https://media.giphy.com/media/JQqg4zIGFaWFm/giphy.gif",
-            "https://media.giphy.com/media/l2Je66zG6mAAZxgqI/giphy.gif"
+            "https://media.giphy.com/media/IThjAlJnD9WNO/giphy.gif"
         ]
     },
     "neutral": {
         "quotes": [
-            "Not every day needs to be amazing. Neutral is okay too 🌥",
-            "Stillness speaks louder than noise 🔇"
+            "Stay grounded. Everything will fall into place. 🌱",
+            "Just breathe, you’ve got this. 🌈"
         ],
         "jokes": [
-            "Why did the neutral face go to therapy? To work on its expression 😐",
-            "I was going to tell a neutral joke… but it’s neither funny nor sad 😶"
+            "Why can’t your nose be 12 inches long? Because then it would be a foot! 👃🤣",
+            "What do you call cheese that isn't yours? Nacho cheese! 🧀"
         ],
         "youtube": [
-            "https://www.youtube.com/watch?v=V1Pl8CzNzCw"
+            "https://www.youtube.com/watch?v=hHW1oY26kxQ"
         ],
-        "spotify": [
-            "https://open.spotify.com/playlist/37i9dQZF1DWU0ScTcjJBdj"
-        ],
+        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DX6VdMW310YC7"],
         "gifs": [
-            "https://media.giphy.com/media/y6cFmbn9X5yis/giphy.gif",
-            "https://media.giphy.com/media/3o6Yg4VhjUB2t3sJFe/giphy.gif",
-            "https://media.giphy.com/media/OkJat1YNdoD3W/giphy.gif",
-            "https://media.giphy.com/media/3ohs4BSacFKI7A717m/giphy.gif",
-            "https://media.giphy.com/media/XIqCQx02E1U9W/giphy.gif"
+            "https://media.giphy.com/media/xT1R9ZzU4dU6lV1p7G/giphy.gif"
         ]
     },
     "depressed": {
         "quotes": [
-            "You’ve survived 100% of your worst days. Keep going 💪",
-            "There is hope, even when your brain tells you there isn’t 🧠"
+            "You're not alone. This too shall pass. 🌧",
+            "Every storm runs out of rain. 🌦"
         ],
         "jokes": [
-            "Why don’t depressed people like stairs? Because they’re always down 😔",
-            "What’s a depressed person’s favorite game? Hide and don’t seek 🫥"
+            "Why did the chicken go to therapy? To get to the other side of its emotions. 🐔",
+            "What’s a depressed person’s favorite food? Anything with serotonin! 😅"
         ],
         "youtube": [
-            "https://www.youtube.com/watch?v=ioNng23DkIM"
+            "https://www.youtube.com/watch?v=w6T02g5hnT4",
+            "https://www.youtube.com/watch?v=2vEStDd6HVY"
         ],
-        "spotify": [
-            "https://open.spotify.com/playlist/37i9dQZF1DX3YSRoSdA634"
-        ],
+        "spotify": ["https://open.spotify.com/playlist/37i9dQZF1DWVrtsSlLKzro"],
         "gifs": [
-            "https://media.giphy.com/media/l2Sq0F6HYKwDi6eek/giphy.gif",
-            "https://media.giphy.com/media/26AHONQ79FdWZhAI0/giphy.gif",
-            "https://media.giphy.com/media/1BXa2alBjrCXC/giphy.gif",
-            "https://media.giphy.com/media/xUPGcguWZHRC2HyBRS/giphy.gif",
-            "https://media.giphy.com/media/d3mlE7uhX8KFgEmY/giphy.gif"
+            "https://media.giphy.com/media/l0HlJzQ9312VRFMBW/giphy.gif"
         ]
     }
 }
 
-# ------------------ Mood Detection Logic ------------------ #
-def detect_mood(text):
-    blob = TextBlob(text)
-    polarity = blob.sentiment.polarity
-    lowered = text.lower()
-
-    if any(word in lowered for word in ["depressed", "suicide", "worthless", "hopeless"]):
-        return "depressed"
-    elif "angry" in lowered or polarity < -0.3:
-        return "angry"
-    elif "sad" in lowered or -0.3 <= polarity < -0.1:
-        return "sad"
-    elif "happy" in lowered or 0.3 < polarity <= 0.6:
-        return "happy"
-    elif "joy" in lowered or polarity > 0.6:
-        return "joyful"
-    elif -0.1 <= polarity <= 0.3:
-        return "neutral"
-    else:
-        return "neutral"
-
-# ------------------ App UI ------------------ #
-st.set_page_config(page_title="Conversational Mood Detector", layout="centered")
-st.title("🧠 DETECT YOUR MOOD")
-st.markdown("Answer a few questions below to let us detect your mood and suggest things for you.")
-
-if "conversation" not in st.session_state:
-    st.session_state.conversation = []
-if "question_index" not in st.session_state:
-    st.session_state.question_index = 0
-
+# ------------------ Questions ------------------ #
 questions = [
-    "How are you feeling today?",
-    "What’s been on your mind lately?",
-    "Describe your day in one sentence.",
-    "Is there anything making you feel low or uplifted?",
-    "What kind of music are you in the mood for?"
+    "How are you feeling today in one word?",
+    "What happened today that affected your mood?",
+    "What's something on your mind right now?",
+    "How do you feel physically and mentally right now?",
+    "If you could change one thing about your day, what would it be?"
 ]
 
-if st.session_state.question_index < len(questions):
-    question = questions[st.session_state.question_index]
-    user_input = st.text_input(f"👉 {question}", key=f"q{st.session_state.question_index}")
+# ------------------ Session State ------------------ #
+if "q_index" not in st.session_state:
+    st.session_state.q_index = 0
+if "responses" not in st.session_state:
+    st.session_state.responses = []
+if "user_input" not in st.session_state:
+    st.session_state.user_input = ""
 
-    if user_input:
-        st.session_state.conversation.append(user_input)
-        st.session_state.question_index += 1
-        st.experimental_rerun()
+# ------------------ Functions ------------------ #
+def advance():
+    if st.session_state.user_input.strip():
+        st.session_state.responses.append(st.session_state.user_input.strip())
+        st.session_state.q_index += 1
+        st.session_state.user_input = ""
+
+def detect_mood(texts):
+    combined_text = " ".join(texts).lower()
+    depression_keywords = [
+        "depressed", "hopeless", "suicidal", "empty", "worthless",
+        "pointless", "dark", "numb", "burned out", "i hate myself", "give up"
+    ]
+    if any(kw in combined_text for kw in depression_keywords):
+        return "depressed"
+
+    polarity = sum(TextBlob(t).sentiment.polarity for t in texts) / len(texts)
+
+    if polarity >= 0.5:
+        return "joyful"
+    elif 0.2 <= polarity < 0.5:
+        return "happy"
+    elif -0.2 < polarity < 0.2:
+        return "neutral"
+    elif -0.6 < polarity <= -0.2:
+        return "sad"
+    else:
+        return "depressed"
+
+# ------------------ UI Config ------------------ #
+st.set_page_config(page_title="AI Mood Detector 😄", layout="centered")
+st.markdown("<h1 style='text-align: center;'>🧠 Conversational Mood Detector</h1>", unsafe_allow_html=True)
+st.markdown("Answer a few questions below to let us detect your mood and suggest things for you.")
+
+# ------------------ Q&A or Result ------------------ #
+q_index = st.session_state.q_index
+
+if q_index < len(questions):
+    st.subheader(f"Q{q_index + 1}: {questions[q_index]}")
+    st.text_input(
+        label="",
+        key="user_input",
+        on_change=advance,
+        placeholder="Type your response and press Enter..."
+    )
 else:
-    full_text = " ".join(st.session_state.conversation)
-    mood = detect_mood(full_text)
-
-    st.subheader(f"🎯 Detected Mood: **{mood.upper()}**")
-
     try:
-        mood_info = mood_data[mood]
+        mood = detect_mood(st.session_state.responses)
+        data = mood_data[mood]
 
-        st.markdown(f"💡 **Motivational Quote:** _{random.choice(mood_info['quotes'])}_")
-        st.markdown(f"😂 **Mood Joke:** _{random.choice(mood_info['jokes'])}_")
-        st.markdown(f"🎵 [Open Spotify Playlist]({random.choice(mood_info['spotify'])})")
-        st.markdown(f"📺 [Watch on YouTube]({random.choice(mood_info['youtube'])})")
+        st.balloons()
+        st.success(f"🎯 Your mood is: *{mood.capitalize()}*")
+        st.image(random.choice(data["gifs"]), use_container_width=True)
 
-        # Show GIF
-        st.image(random.choice(mood_info['gifs']), use_column_width=True)
+        st.subheader("💬 Motivational Quotes")
+        for quote in random.sample(data["quotes"], min(2, len(data["quotes"]))):
+            st.info(quote)
+
+        st.subheader("🎧 Spotify Playlist")
+        for link in data["spotify"]:
+            st.markdown(f"[▶ Open Playlist on Spotify]({link})")
+
+        st.subheader("📺 YouTube Videos for You")
+        for link in random.sample(data["youtube"], min(2, len(data["youtube"]))):
+            st.markdown(f"[🎬 Watch Video]({link})")
+
+        st.subheader("😂 Here's a joke:")
+        st.write(random.choice(data["jokes"]))
+
+        if st.button("🔁 Start Again"):
+            st.session_state.q_index = 0
+            st.session_state.responses = []
+            st.session_state.user_input = ""
+            st.experimental_rerun()
 
     except Exception as e:
         st.error(f"⚠ An error occurred: {e}")
-
-
