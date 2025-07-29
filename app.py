@@ -207,4 +207,5 @@ else:
             st.session_state.user_input = ""
             st.experimental_rerun()
 
-   
+    except Exception as e:
+        st.error(f"⚠ An error occurred: {e}")
