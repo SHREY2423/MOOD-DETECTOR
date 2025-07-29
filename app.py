@@ -1,34 +1,37 @@
 import streamlit as st
 from textblob import TextBlob
 import random
+import re
+from collections import defaultdict
 
 # ------------------ Mood Keywords ------------------ #
 mood_keywords = {
     "depressed": [
         "depressed", "hopeless", "suicidal", "empty", "worthless", "pointless", "numb",
-        "i hate myself", "give up", "kill", "cut", "death", "ending it", "no way out", "hurting", "done", "useless"
+        "hate myself", "give up", "kill", "cut", "death", "die", "ending it", "hurting", "done", "useless"
     ],
     "joyful": [
-        "joyful", "cheerful", "excited", "grateful", "fantastic", "wonderful", "blessed", "great", "amazing", "woohoo", "yaaahoo", "awesome", "yay", "celebrate"
+        "joyful", "cheerful", "excited", "grateful", "fantastic", "wonderful", "blessed",
+        "great", "amazing", "woohoo", "yaaahoo", "awesome", "yay", "celebrate", "ecstatic"
     ],
     "happy": [
-        "happy", "smile", "fun", "sunny", "cool", "loving", "calm", "fine", "peaceful", "bright", "good", "positive"
+        "happy", "smile", "fun", "sunny", "cool", "loving", "calm", "peaceful", "bright",
+        "good", "positive", "content", "satisfied", "relaxed"
     ],
     "sad": [
-        "sad", "cry", "tears", "upset", "hurt", "lonely", "bad day", "unhappy", "disappointed", "gloomy", "down"
+        "sad", "cry", "tears", "upset", "hurt", "lonely", "bad", "unhappy", "disappointed", "gloomy", "lost", "down"
     ],
     "angry": [
-        "angry", "mad", "furious", "pissed", "rage", "hate", "annoyed", "irritated", "frustrated", "screaming", "explode"
+        "angry", "mad", "furious", "pissed", "rage", "hate", "annoyed", "irritated", "frustrated", "yell", "explode", "temper"
     ],
     "neutral": [
-        "okay", "normal", "nothing", "meh", "fine", "tired", "bored", "average", "usual", "neutral"
+        "okay", "normal", "nothing", "meh", "fine", "tired", "bored", "average", "usual", "neutral", "blank"
     ]
 }
 
 # ------------------ Mood Data ------------------ #
 mood_data = {
-    # SAME AS YOUR ORIGINAL DICTIONARY (NO CHANGES)
-    # Paste your original mood_data here.
+    # Paste your original `mood_data` dictionary here — unchanged
 }
 
 # ------------------ Questions ------------------ #
@@ -57,16 +60,29 @@ def advance():
 
 def detect_mood(texts):
     combined_text = " ".join(texts).lower()
+    words = re.findall(r"\b\w+\b", combined_text)
 
-    # First priority: keyword detection
+    mood_scores = defaultdict(int)
+
+    # Count keyword matches
     for mood, keywords in mood_keywords.items():
-        for word in keywords:
-            if word in combined_text:
-                return mood
+        for keyword in keywords:
+            keyword_words = keyword.lower().split()
+            if len(keyword_words) == 1:
+                mood_scores[mood] += words.count(keyword_words[0])
+            else:
+                # Check for phrases (like "give up")
+                pattern = re.compile(r"\b" + r"\s+".join(keyword_words) + r"\b")
+                mood_scores[mood] += len(pattern.findall(combined_text))
 
-    # Fallback: sentiment analysis
+    # If there’s a clear winner
+    if mood_scores:
+        top_mood = max(mood_scores, key=mood_scores.get)
+        if mood_scores[top_mood] > 0:
+            return top_mood
+
+    # Fallback to sentiment
     polarity = sum(TextBlob(t).sentiment.polarity for t in texts) / len(texts)
-
     if polarity >= 0.5:
         return "joyful"
     elif 0.2 <= polarity < 0.5:
